@@ -1,0 +1,8 @@
+{
+  "name": "Remix 클리어웍스 홈페이지 빌더 \u0026 웹에디터",
+  "description": "서울·경기·인천 아파트·상가·빌딩 유리창청소와 건물 외벽청소 전문 클리어웍스. 고층 유리창·외벽 고압세척, 안전한 맞춤 시공과 무료 출장견적을 제공합니다.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
