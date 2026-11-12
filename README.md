@@ -4,39 +4,29 @@
 
 ---
 
-## 🚨 GitHub 업로드 후 흰 화면(White Screen)이 뜨는 원인 및 해결 방법
+## 🚨 GitHub 업로드 후 흰 화면이 뜨는 이유와 1분 해결법
 
-### 1. 원인
-- **React + Vite 프로젝트 특성**: 프로젝트 소스코드의 `index.html`은 `<script type="module" src="/src/main.tsx"></script>`처럼 브라우저가 직접 해석할 수 없는 TypeScript/JSX 파일을 가리키고 있습니다.
-- 브라우저는 빌드되지 않은 `.tsx` 파일을 바로 실행할 수 없으므로, **`npm run build` 과정을 거쳐 생성된 `dist` 폴더(순수 HTML, CSS, JS)가 서비스되어야 합니다.**
-- 또한 GitHub Pages의 기본 주소는 `https://아이디.github.io/저장소이름/` 형태의 서브 디렉터리 경로이므로, `vite.config.ts`의 `base` 경로가 상대 경로(`'./'`)로 지정되어 있어야 자바스크립트 및 CSS 파일이 정상 로드됩니다.
-
----
-
-### 2. 해결 방법 (가장 추천: GitHub Actions 자동 배포)
-
-프로젝트에 이미 자동 빌드 및 배포 워크플로우(`.github/workflows/deploy.yml`)와 상대 경로 설정(`base: './'`)을 적용해 두었습니다. 아래 단계만 진행하시면 바로 해결됩니다:
-
-1. **GitHub 저장소로 이동**
-2. 상단 탭의 **`Settings`** 클릭
-3. 좌측 사이드바 메뉴에서 **`Pages`** 클릭
-4. **Build and deployment** 항목의 **Source** 옵션을 확인:
-   - 기본값: `Deploy from a branch` ❌ (이 상태에서는 빌드되지 않은 원본 소스가 서빙되어 흰 화면이 뜸)
-   - 변경할 값: **`GitHub Actions`** 로 선택! ⭕
-5. 소스코드를 커밋 및 푸시(Push)하거나, 저장소 상단 **Actions** 탭에서 **Deploy to GitHub Pages** 워크플로우를 실행합니다.
-6. 약 1~2분 후 배포가 완료되면 안내되는 URL(예: `https://<username>.github.io/<repo-name>/`)로 접속 시 웹사이트가 완벽하게 나타납니다.
+### 왜 세팅을 바꿨는데도 여전히 흰 화면이 떴을까요?
+1. **GitHub Actions 탭에서 빌드가 완료되지 않았거나 실행되지 않음**:
+   - `Settings > Pages`에서 Source를 `GitHub Actions`로 변경만 하고, GitHub 상단의 **`Actions` 탭**에서 워크플로우가 실제로 돌아가지 않았거나(또는 노란색 원으로 진행 중),
+   - zip을 풀어서 웹 브라우저로 올릴 때 이름이 점(`.`)으로 시작하는 `.github` 폴더(숨김 파일)가 누락되어 업로드되지 않았기 때문입니다.
+2. **이전 캐시(Cache) 문제**:
+   - 브라우저가 이전에 빈 화면이었던 상태(404 에러 등)를 기억하고 있어 캐시를 불러오기 때문입니다.
 
 ---
 
-### 3. 대안 방법 (내 컴퓨터에서 빌드 후 업로드하는 경우)
+### 🏆 가장 쉽고 100% 확실한 해결 방법: `/docs` 폴더 배포 (강력 추천!)
 
-1. 터미널(VS Code 등)에서 의존성 설치:
-   ```bash
-   npm install
-   ```
-2. 프로덕션 빌드 실행:
-   ```bash
-   npm run build
-   ```
-3. 빌드가 완료되면 프로젝트 루트에 `dist` 폴더가 생성됩니다.
-4. `dist` 폴더 안에 있는 파일들(`index.html`, `assets/` 등)을 저장소의 `gh-pages` 브랜치나 웹 호스팅 서버에 업로드하시면 됩니다.
+프로젝트 안에 이미 완벽하게 빌드된 웹사이트 파일을 **`docs`** 폴더에 미리 담아두었습니다!
+따라서 복잡한 Actions 설정이나 터미널 작업 없이 **GitHub 세팅만 딱 한 번 바꿔주시면 100% 즉시 해결**됩니다:
+
+1. **GitHub 저장소** 접속
+2. 상단 탭에서 **`Settings` (설정)** 클릭
+3. 왼쪽 사이드바 메뉴에서 **`Pages`** 클릭
+4. **Build and deployment** 설정에서:
+   - **Source**: **`Deploy from a branch`** 선택
+   - **Branch**: `main` (또는 `master`) 선택
+   - **Folder**: 바로 옆의 폴더 드롭다운에서 `/ (root)` 대신 👉 **`/docs`** 선택!
+5. **`Save` (저장)** 버튼 클릭!
+6. 약 30초~1분 뒤 안내되는 사이트 주소로 접속하면 화면이 완벽하게 뜹니다.
+   *(접속 시 여전히 하얗다면 `Ctrl + F5` 또는 시크릿 모드로 접속해 보세요)*
