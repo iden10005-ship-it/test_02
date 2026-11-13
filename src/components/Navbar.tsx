@@ -192,17 +192,8 @@ export const Navbar: React.FC<NavbarProps> = ({
 
               {serviceDropdownOpen && services.length > 0 && (
                 <div className="absolute top-full left-0 w-64 bg-white rounded-2xl shadow-xl border border-slate-200 p-2 z-50 animate-in fade-in zoom-in-95 duration-100">
-                  <div className="text-[11px] font-bold text-slate-400 px-3 py-1.5 uppercase tracking-wider flex items-center justify-between border-b border-slate-100 mb-1">
+                  <div className="text-[11px] font-bold text-slate-400 px-3 py-1.5 uppercase tracking-wider border-b border-slate-100 mb-1">
                     <span>전문 서비스 목록</span>
-                    <span
-                      onClick={() => {
-                        setServiceDropdownOpen(false);
-                        scrollToSection('service');
-                      }}
-                      className="text-blue-600 cursor-pointer hover:underline text-[10px]"
-                    >
-                      전체보기 →
-                    </span>
                   </div>
                   {services.map((srv) => (
                     <button
@@ -229,30 +220,18 @@ export const Navbar: React.FC<NavbarProps> = ({
               작업과정
             </button>
 
-            {/* 4. 시공사례 */}
-            <button
-              onClick={() => scrollToSection('cases')}
-              className="px-3 py-2 text-sm font-bold text-slate-700 hover:text-blue-600 hover:bg-slate-50 rounded-xl transition-all"
-            >
-              시공사례
-            </button>
-
-            {/* 4-2. 작업갤러리 */}
+            {/* 4. 작업갤러리 */}
             <button
               onClick={() => {
                 handleNavClick();
-                if (onNavigateGalleryList) {
-                  window.scrollTo({ top: 0, behavior: 'instant' });
-                  onNavigateGalleryList();
+                if (onNavigateHome) {
+                  onNavigateHome();
+                  setTimeout(() => scrollToSection('gallery'), 50);
                 } else {
                   scrollToSection('gallery');
                 }
               }}
-              className={`px-3 py-2 text-sm font-bold rounded-xl transition-all ${
-                currentPage.type === 'gallery_list' || currentPage.type === 'gallery_detail'
-                  ? 'text-blue-600 bg-blue-50/80 font-extrabold'
-                  : 'text-slate-700 hover:text-blue-600 hover:bg-slate-50'
-              }`}
+              className="px-3 py-2 text-sm font-bold text-slate-700 hover:text-blue-600 hover:bg-slate-50 rounded-xl transition-all"
             >
               작업갤러리
             </button>
@@ -370,27 +349,16 @@ export const Navbar: React.FC<NavbarProps> = ({
               <button
                 onClick={() => {
                   handleNavClick();
-                  scrollToSection('cases');
-                }}
-                className="w-full text-left px-3.5 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 rounded-xl"
-              >
-                시공사례
-              </button>
-
-              <button
-                onClick={() => {
-                  handleNavClick();
-                  if (onNavigateGalleryList) {
-                    window.scrollTo({ top: 0, behavior: 'instant' });
-                    onNavigateGalleryList();
+                  if (onNavigateHome) {
+                    onNavigateHome();
+                    setTimeout(() => scrollToSection('gallery'), 50);
                   } else {
                     scrollToSection('gallery');
                   }
                 }}
-                className="w-full text-left px-3.5 py-2 text-sm font-bold text-blue-600 hover:bg-blue-50 rounded-xl flex items-center justify-between"
+                className="w-full text-left px-3.5 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50 rounded-xl"
               >
-                <span>📷 작업갤러리 (블로그)</span>
-                <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-md font-bold">BLOG</span>
+                작업갤러리
               </button>
 
               <button

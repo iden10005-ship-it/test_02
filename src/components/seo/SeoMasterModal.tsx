@@ -36,6 +36,7 @@ import {
 } from '../../data/seoArchitectureData';
 import { SiteData, PageView, PageSeoConfig } from '../../types/siteData';
 import { getPageKey } from '../../utils/urlRouter';
+import { getEffectivePageSeo, getKeywordSuggestions } from '../../utils/seoHelper';
 
 interface SeoMasterModalProps {
   isOpen: boolean;
@@ -48,191 +49,7 @@ interface SeoMasterModalProps {
   onNavigateService: (serviceId: string) => void;
 }
 
-/**
- * Calculates effective/default SEO metadata for any page key
- */
-function getEffectivePageSeo(pageKey: string, siteData: SiteData): PageSeoConfig {
-  const existing = siteData.seo?.pages?.[pageKey];
-  if (existing) {
-    return {
-      title: existing.title || '',
-      description: existing.description || '',
-      primaryKeywords: existing.primaryKeywords || [],
-      secondaryKeywords: existing.secondaryKeywords || [],
-      author: existing.author || siteData.company.name,
-    };
-  }
 
-  // Generate smart default based on pageKey
-  if (pageKey === 'home') {
-    return {
-      title: `${siteData.hero.title} | ${siteData.company.name}`,
-      description: `${siteData.hero.subtitle} 서울·경기·인천 출장 실측 무료견적: ${siteData.company.phone}`,
-      primaryKeywords: [
-        '유리창청소',
-        '아파트외창청소',
-        '외벽청소',
-        '상가유리창청소',
-        '빌딩외벽청소',
-        '고층유리창청소',
-        '서울유리창청소',
-        siteData.company.name,
-      ],
-      secondaryKeywords: [
-        '창틀청소',
-        '유리발수코팅',
-        '어닝청소',
-        '유리창청소비용',
-        '외창청소업체',
-      ],
-      author: siteData.company.name,
-    };
-  }
-
-  if (pageKey.startsWith('region:')) {
-    const rName = pageKey.replace('region:', '');
-    return {
-      title: `[${rName}] 유리창청소·아파트 외창청소 전문 | ${siteData.company.name}`,
-      description: `${rName} 관내 아파트 및 상가 유리창 전문 출장. 고층 외창 물때 제거, 샷시 레일 스팀 케어, 배상책임보험 가입 업체.`,
-      primaryKeywords: [
-        `${rName} 유리창청소`,
-        `${rName} 아파트외창청소`,
-        `${rName} 외창청소업체`,
-        `${rName} 유리청소견적`,
-        `${rName} 상가유리청소`,
-        siteData.company.name,
-      ],
-      secondaryKeywords: [
-        `${rName} 베란다창문청소`,
-        `${rName} 창틀청소`,
-        `${rName} 유리물때제거`,
-        `${rName} 유리코팅`,
-      ],
-      author: siteData.company.name,
-    };
-  }
-
-  if (pageKey.startsWith('service:')) {
-    const sId = pageKey.replace('service:', '');
-    const srv = siteData.services.items.find((s) => s.id === sId);
-    const title = srv ? srv.title : '유리창 청소';
-    return {
-      title: `[${siteData.company.region}] ${title} 전문 클리닝 | ${siteData.company.name}`,
-      description: `${title} - ${srv?.description || ''} 무스크래치 전문 스퀴지 공법, 무료 견적 상담: ${siteData.company.phone}`,
-      primaryKeywords: [
-        title,
-        `${title} 비용`,
-        `${title} 견적`,
-        '유리창청소',
-        siteData.company.name,
-      ],
-      secondaryKeywords: [
-        '외창 물때 제거',
-        '창틀 레일 세척',
-        '유리 표면 발수코팅',
-        '아파트 고층 청소',
-      ],
-      author: siteData.company.name,
-    };
-  }
-
-  if (pageKey.startsWith('matrix:')) {
-    const [, rName, sId] = pageKey.split(':');
-    const srv = siteData.services.items.find((s) => s.id === sId);
-    const sTitle = srv ? srv.title : '유리창 청소';
-    return {
-      title: `[${rName}] ${sTitle} 전문 시공 및 견적 | ${siteData.company.name}`,
-      description: `${rName} ${sTitle} 맞춤 시공. 아파트 고층 외창 및 상가 유리 전문, 24시간 이내 신속 방문 실측.`,
-      primaryKeywords: [
-        `${rName} ${sTitle}`,
-        `${rName} 유리창청소`,
-        `${rName} 외창청소비용`,
-        siteData.company.name,
-      ],
-      secondaryKeywords: [
-        `${rName} 청소업체추천`,
-        `${rName} 유리코팅`,
-      ],
-      author: siteData.company.name,
-    };
-  }
-
-  if (pageKey === 'gallery_list') {
-    return {
-      title: `시공 갤러리 & 작업 현장 일지 | ${siteData.company.name}`,
-      description: `클리어웍스가 직접 시공한 서울·경기·인천 아파트 및 상가 유리창 청소 전후 현장 사례와 작업 스토리입니다.`,
-      primaryKeywords: ['유리창청소시공사례', '외창청소후기', '유리청소전후사진', '현장일지', siteData.company.name],
-      secondaryKeywords: ['아파트외창청소후기', '유리창청소만족도'],
-      author: siteData.company.name,
-    };
-  }
-
-  return {
-    title: `${siteData.company.name} - 전문 유리창 청소`,
-    description: siteData.hero.subtitle,
-    primaryKeywords: ['유리창청소', siteData.company.name],
-    secondaryKeywords: [],
-    author: siteData.company.name,
-  };
-}
-
-/**
- * Generates smart keyword recommendations for a page key
- */
-function getKeywordSuggestions(pageKey: string, siteData: SiteData): string[] {
-  if (pageKey === 'home') {
-    return [
-      '아파트 외창 청소 견적',
-      '고층 유리창 물때 제거',
-      '상가 유리 정기 관리',
-      '유리창 청소 업체 추천',
-      '빌딩 외벽 고압세척',
-      '베란다 창문 찌든때',
-      '배상책임보험 청소업체',
-    ];
-  }
-  if (pageKey.startsWith('region:')) {
-    const r = pageKey.replace('region:', '');
-    return [
-      `${r} 아파트 외창 청소비용`,
-      `${r} 고층 베란다 창문청소`,
-      `${r} 상가 유리창 관리업체`,
-      `${r} 당일 출장 무료견적`,
-      `${r} 샷시 레일 흑먼지 청소`,
-      `${r} 유리창 발수코팅 시공`,
-    ];
-  }
-  if (pageKey.startsWith('service:')) {
-    const sId = pageKey.replace('service:', '');
-    const srv = siteData.services.items.find((s) => s.id === sId);
-    const title = srv?.title || '유리창 청소';
-    return [
-      `${title} 평당 가격`,
-      `${title} 작업 후기`,
-      `${title} 전문 장비`,
-      `${title} 당일 예약`,
-      '자성 와이퍼 안전 시공',
-      '독일 수입 스퀴지 마감',
-    ];
-  }
-  if (pageKey.startsWith('matrix:')) {
-    const [, r, sId] = pageKey.split(':');
-    const srv = siteData.services.items.find((s) => s.id === sId);
-    const title = srv?.title || '유리창 청소';
-    return [
-      `${r} ${title} 견적`,
-      `${r} 아파트 공동구매 할인`,
-      `${r} 창문 청소 예약`,
-      '비산 방지 오염수 집진',
-    ];
-  }
-  return [
-    '서울 유리창 청소',
-    '경기 유리창 청소',
-    '인천 유리창 청소',
-    '외창 물때 스티커 제거',
-  ];
-}
 
 export const SeoMasterModal: React.FC<SeoMasterModalProps> = ({
   isOpen,
@@ -255,8 +72,10 @@ export const SeoMasterModal: React.FC<SeoMasterModalProps> = ({
   const [editDescription, setEditDescription] = useState<string>('');
   const [primaryKeywords, setPrimaryKeywords] = useState<string[]>([]);
   const [secondaryKeywords, setSecondaryKeywords] = useState<string[]>([]);
+  const [regionLongTailKeywords, setRegionLongTailKeywords] = useState<string[]>([]);
   const [newPrimaryInput, setNewPrimaryInput] = useState<string>('');
   const [newSecondaryInput, setNewSecondaryInput] = useState<string>('');
+  const [newRegionLongTailInput, setNewRegionLongTailInput] = useState<string>('');
   const [saveFeedback, setSaveFeedback] = useState<string | null>(null);
 
   // Sync selectedPageKey with currentPage whenever modal is opened
@@ -275,6 +94,7 @@ export const SeoMasterModal: React.FC<SeoMasterModalProps> = ({
       setEditDescription(seo.description || '');
       setPrimaryKeywords(seo.primaryKeywords || []);
       setSecondaryKeywords(seo.secondaryKeywords || []);
+      setRegionLongTailKeywords(seo.regionLongTailKeywords || []);
       setSaveFeedback(null);
     }
   }, [isOpen, selectedPageKey, siteData]);
@@ -340,10 +160,29 @@ export const SeoMasterModal: React.FC<SeoMasterModalProps> = ({
     setSecondaryKeywords((prev) => prev.filter((_, i) => i !== index));
   };
 
+  const handleAddRegionLongTailKeyword = (keyword: string) => {
+    const clean = keyword.trim();
+    if (!clean) return;
+    const parts = clean.split(',').map((p) => p.trim()).filter((p) => p.length > 0);
+    setRegionLongTailKeywords((prev) => {
+      const next = [...prev];
+      for (const p of parts) {
+        if (!next.includes(p)) next.push(p);
+      }
+      return next;
+    });
+    setNewRegionLongTailInput('');
+  };
+
+  const handleRemoveRegionLongTailKeyword = (index: number) => {
+    setRegionLongTailKeywords((prev) => prev.filter((_, i) => i !== index));
+  };
+
   const handleSavePageSeo = () => {
     if (!onUpdateSiteData) return;
     const cleanPrimary = primaryKeywords.map((k) => k.trim()).filter((k) => k.length > 0);
     const cleanSecondary = secondaryKeywords.map((k) => k.trim()).filter((k) => k.length > 0);
+    const cleanRegionLongTail = regionLongTailKeywords.map((k) => k.trim()).filter((k) => k.length > 0);
 
     onUpdateSiteData((prev) => ({
       ...prev,
@@ -356,6 +195,7 @@ export const SeoMasterModal: React.FC<SeoMasterModalProps> = ({
             description: editDescription.trim(),
             primaryKeywords: cleanPrimary,
             secondaryKeywords: cleanSecondary,
+            regionLongTailKeywords: cleanRegionLongTail,
             author: prev.company.name,
           },
         },
@@ -390,6 +230,7 @@ export const SeoMasterModal: React.FC<SeoMasterModalProps> = ({
       setEditDescription(defaults.description || '');
       setPrimaryKeywords(defaults.primaryKeywords || []);
       setSecondaryKeywords(defaults.secondaryKeywords || []);
+      setRegionLongTailKeywords(defaults.regionLongTailKeywords || []);
       setSaveFeedback('권장 기본 키워드로 복원되었습니다.');
       setTimeout(() => setSaveFeedback(null), 2500);
     }
@@ -761,6 +602,84 @@ export const SeoMasterModal: React.FC<SeoMasterModalProps> = ({
                       <span>추가</span>
                     </button>
                   </form>
+                </div>
+
+                {/* Region-Specific Long-Tail Keywords */}
+                <div className="pt-4 border-t border-slate-100">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 mb-2">
+                    <h5 className="text-xs sm:text-sm font-bold text-slate-800 flex items-center gap-1.5">
+                      <MapPin className="w-4 h-4 text-indigo-600" />
+                      <span>지역별 맞춤 확장 롱테일 키워드 ({regionLongTailKeywords.length}개)</span>
+                    </h5>
+                    <span className="text-[11px] text-slate-400">
+                      특정 구/시 단위 지역 검색 유입을 극대화하는 맞춤 롱테일 키워드 메타 태그
+                    </span>
+                  </div>
+
+                  <div className="flex flex-wrap gap-1.5 mb-3 p-3 bg-slate-50 rounded-2xl border border-slate-200/80 min-h-[46px] items-center">
+                    {regionLongTailKeywords.length === 0 ? (
+                      <span className="text-xs text-slate-400">등록된 지역별 롱테일 키워드가 없습니다. 아래에서 추가하거나 추천 지역 키워드를 선택하세요.</span>
+                    ) : (
+                      regionLongTailKeywords.map((kw, idx) => (
+                        <span
+                          key={idx}
+                          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-indigo-50 text-indigo-700 text-xs font-semibold border border-indigo-200/60"
+                        >
+                          <span>{kw}</span>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveRegionLongTailKeyword(idx)}
+                            className="p-0.5 hover:bg-indigo-200 rounded-full text-indigo-500 hover:text-red-600"
+                            title="삭제"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        </span>
+                      ))
+                    )}
+                  </div>
+
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      handleAddRegionLongTailKeyword(newRegionLongTailInput);
+                    }}
+                    className="flex items-center gap-2 mb-3"
+                  >
+                    <input
+                      type="text"
+                      value={newRegionLongTailInput}
+                      onChange={(e) => setNewRegionLongTailInput(e.target.value)}
+                      placeholder="지역별 확장 롱테일 키워드 입력 (예: 강남구 아파트 외창 물때 제거 비용)"
+                      className="flex-1 px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                    <button
+                      type="submit"
+                      className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition-colors flex items-center gap-1 shrink-0 shadow-xs"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      <span>추가</span>
+                    </button>
+                  </form>
+
+                  {/* Quick Region Keyword Batch Injectors */}
+                  <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80 space-y-2">
+                    <span className="text-[11px] font-bold text-slate-600 block">
+                      ⚡ 주요 서비스 지역 맞춤 롱테일 원클릭 추가:
+                    </span>
+                    <div className="flex flex-wrap gap-1.5">
+                      {['강남구 아파트 외창청소', '서초구 유리창 물때제거', '송파구 고층창문 청소', '분당구 상가 유리세척', '마포구 아파트 유리발수코팅'].map((preset, idx) => (
+                        <button
+                          key={idx}
+                          type="button"
+                          onClick={() => handleAddRegionLongTailKeyword(preset)}
+                          className="px-2.5 py-1 rounded-lg bg-white hover:bg-indigo-50 text-slate-700 hover:text-indigo-600 text-xs font-semibold border border-slate-200 transition-colors shadow-2xs"
+                        >
+                          + {preset}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 </div>
 
                 {/* Smart Keyword Recommendations */}

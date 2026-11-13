@@ -53,9 +53,7 @@ export const Footer: React.FC<FooterProps> = ({
             <a href="#service" className="hover:text-white transition-colors">
               서비스
             </a>
-            <a href="#cases" className="hover:text-white transition-colors">
-              시공사례
-            </a>
+
             <a href="#price" className="hover:text-white transition-colors">
               가격안내
             </a>

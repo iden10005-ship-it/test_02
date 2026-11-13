@@ -26,7 +26,6 @@ import { Navbar } from './components/Navbar';
 import { HeroSection } from './components/HeroSection';
 import { ServicesSection } from './components/ServicesSection';
 import { ProcessSection } from './components/ProcessSection';
-import { CasesSection } from './components/CasesSection';
 import { GallerySection } from './components/GallerySection';
 import { PricingSection } from './components/PricingSection';
 import { ReviewsSection } from './components/ReviewsSection';
@@ -829,29 +828,7 @@ export default function App() {
                 onUpdateStep={handleUpdateStep}
               />
 
-              {/* Cases / Portfolio Section */}
-              <CasesSection
-                sectionTitle={siteData.cases.sectionTitle}
-                sectionSubtitle={siteData.cases.sectionSubtitle}
-                cases={siteData.cases.items}
-                isEditMode={effectiveEditMode}
-                onUpdateTitle={(val) =>
-                  setSiteData((prev) => ({
-                    ...prev,
-                    cases: { ...prev.cases, sectionTitle: val },
-                  }))
-                }
-                onUpdateSubtitle={(val) =>
-                  setSiteData((prev) => ({
-                    ...prev,
-                    cases: { ...prev.cases, sectionSubtitle: val },
-                  }))
-                }
-                onUpdateCase={handleUpdateCase}
-                onAddCase={handleAddCase}
-                onDeleteCase={handleDeleteCase}
-                onEditCaseImages={(caseItem) => setImagePickerTarget({ caseId: caseItem.id })}
-              />
+
 
               {/* Gallery / Work Stories Section */}
               <GallerySection

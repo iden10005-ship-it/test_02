@@ -220,6 +220,7 @@ export interface PageSeoConfig {
   description?: string;
   primaryKeywords: string[];
   secondaryKeywords?: string[];
+  regionLongTailKeywords?: string[];
   author?: string;
 }
 
