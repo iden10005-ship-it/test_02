@@ -19,6 +19,7 @@ import {
 import { GalleryPost, CompanyInfo, InquiryItem } from '../../types/siteData';
 import { BeforeAfterSlider } from '../common/BeforeAfterSlider';
 import { GalleryPostModal } from '../gallery/GalleryPostModal';
+import { InternalUrlBar } from '../common/InternalUrlBar';
 
 interface GalleryDetailPageProps {
   post: GalleryPost;
@@ -101,6 +102,14 @@ export const GalleryDetailPage: React.FC<GalleryDetailPageProps> = ({
             </button>
           )}
         </div>
+
+        {/* Internal Direct URL Bar */}
+        <InternalUrlBar
+          path={`#/gallery/${post.id}`}
+          title={`[${post.title}] 시공사례 포스팅 고유 URL`}
+          subtitle="이 주소를 카카오톡이나 블로그 링크에 공유하면 해당 작업 일지 포스팅으로 즉시 연결됩니다."
+          className="mb-6"
+        />
 
         {/* Main Article Card */}
         <article className="bg-white rounded-3xl border border-slate-200 shadow-xl overflow-hidden mb-12">

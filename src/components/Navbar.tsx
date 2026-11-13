@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Phone, MessageCircle, Menu, X, Sparkles, ChevronDown, MapPin, ArrowRight } from 'lucide-react';
+import { Phone, MessageCircle, MessageSquare, FileText, Menu, X, Sparkles, ChevronDown, MapPin, ArrowRight } from 'lucide-react';
 import { CompanyInfo, ServiceItem, PageView } from '../types/siteData';
 import { EditableText } from './common/EditableText';
 
@@ -49,17 +49,19 @@ export const Navbar: React.FC<NavbarProps> = ({
   };
 
   const isHome = currentPage.type === 'home';
+  const cleanPhone = company.phone.replace(/[^0-9]/g, '');
 
   const scrollToSection = (sectionId: string) => {
+    handleNavClick();
     if (!isHome && onNavigateHome) {
       onNavigateHome();
       setTimeout(() => {
         const el = document.getElementById(sectionId);
-        if (el) el.scrollIntoView({ behavior: 'smooth' });
-      }, 100);
+        if (el) el.scrollIntoView({ behavior: 'instant', block: 'start' });
+      }, 10);
     } else {
       const el = document.getElementById(sectionId);
-      if (el) el.scrollIntoView({ behavior: 'smooth' });
+      if (el) el.scrollIntoView({ behavior: 'instant', block: 'start' });
     }
   };
 
@@ -77,15 +79,6 @@ export const Navbar: React.FC<NavbarProps> = ({
             <span className="font-medium text-slate-200">
               {company.region ? `${company.region} 전지역 무료 견적 출장` : '서울·수도권 전지역 무료 견적 출장'}
             </span>
-            {onOpenSeoMaster && (
-              <button
-                type="button"
-                onClick={onOpenSeoMaster}
-                className="ml-3 hidden sm:inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-blue-600/30 text-blue-300 hover:bg-blue-600/50 text-[11px] font-bold border border-blue-400/40 transition-colors"
-              >
-                <span>🗺️ 사이트맵 & SEO</span>
-              </button>
-            )}
           </div>
           <div className="flex items-center gap-4">
             <span className="text-slate-400 hidden sm:inline">운영시간: {company.operatingHours}</span>
@@ -115,8 +108,9 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* Brand Logo */}
           <div
             onClick={() => {
+              handleNavClick();
               if (onNavigateHome) onNavigateHome();
-              window.scrollTo({ top: 0, behavior: 'smooth' });
+              window.scrollTo({ top: 0, behavior: 'instant' });
             }}
             className="flex items-center gap-2.5 group cursor-pointer select-none"
           >
@@ -143,8 +137,9 @@ export const Navbar: React.FC<NavbarProps> = ({
             {/* 1. 홈 */}
             <button
               onClick={() => {
+                handleNavClick();
                 if (onNavigateHome) onNavigateHome();
-                window.scrollTo({ top: 0, behavior: 'smooth' });
+                window.scrollTo({ top: 0, behavior: 'instant' });
               }}
               className={`px-3 py-2 text-sm font-bold rounded-xl transition-all ${
                 isHome ? 'text-blue-600 bg-blue-50/70' : 'text-slate-700 hover:text-blue-600 hover:bg-slate-50'
@@ -217,8 +212,9 @@ export const Navbar: React.FC<NavbarProps> = ({
             {/* 4-2. 작업갤러리 */}
             <button
               onClick={() => {
+                handleNavClick();
                 if (onNavigateGalleryList) {
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                  window.scrollTo({ top: 0, behavior: 'instant' });
                   onNavigateGalleryList();
                 } else {
                   scrollToSection('gallery');
@@ -316,7 +312,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 onClick={() => {
                   handleNavClick();
                   if (onNavigateHome) onNavigateHome();
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                  window.scrollTo({ top: 0, behavior: 'instant' });
                 }}
                 className="w-full text-left px-3.5 py-2.5 text-base font-bold text-slate-900 hover:bg-blue-50 hover:text-blue-600 rounded-xl transition-colors"
               >
@@ -357,7 +353,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 onClick={() => {
                   handleNavClick();
                   if (onNavigateGalleryList) {
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    window.scrollTo({ top: 0, behavior: 'instant' });
                     onNavigateGalleryList();
                   } else {
                     scrollToSection('gallery');
@@ -389,19 +385,15 @@ export const Navbar: React.FC<NavbarProps> = ({
                 자주 묻는 질문(FAQ)
               </button>
 
-              {/* 서비스지역 (홈페이지 순서와 맞춰 FAQ 우측/아래 배치) */}
+              {/* 서비스지역 */}
               <button
                 onClick={() => {
                   handleNavClick();
                   scrollToSection('regions');
                 }}
-                className="w-full text-left px-3.5 py-2.5 text-base font-extrabold text-blue-600 bg-blue-50/70 hover:bg-blue-100 rounded-xl transition-colors flex items-center justify-between"
+                className="w-full text-left px-3.5 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 rounded-xl"
               >
-                <span className="flex items-center gap-2">
-                  <MapPin className="w-4 h-4 text-blue-600" />
-                  서비스지역 (서울·수도권)
-                </span>
-                <span className="text-xs text-blue-600 font-bold">바로가기 →</span>
+                서비스지역
               </button>
 
               <button
@@ -437,47 +429,44 @@ export const Navbar: React.FC<NavbarProps> = ({
               </div>
             </div>
 
-            {/* Region Detail Shortcuts */}
-            <div className="pt-3 border-t border-slate-100 mb-5">
-              <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-2 px-1">
-                구단위 지역별 상세페이지
-              </span>
-              <div className="flex flex-wrap gap-1.5">
-                {regions.map((reg) => (
-                  <button
-                    key={reg}
-                    onClick={() => {
-                      handleNavClick();
-                      if (onNavigateRegion) onNavigateRegion(reg);
-                    }}
-                    className="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 text-xs font-semibold hover:bg-blue-50 hover:text-blue-600 border border-slate-200"
-                  >
-                    {reg}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Mobile Contact CTAs */}
-            <div className="grid grid-cols-2 gap-2 pt-3 border-t border-slate-100">
+            {/* Mobile Contact CTAs (전화상담 / 카톡상담 / 문자상담 / 무료견적) */}
+            <div className="grid grid-cols-4 gap-1.5 pt-3 border-t border-slate-100">
+              <a
+                href={`tel:${company.phone}`}
+                onClick={handleNavClick}
+                className="py-2.5 px-1 rounded-xl bg-slate-900 text-white font-bold text-center text-xs flex flex-col items-center justify-center gap-1 shadow-xs hover:bg-slate-800 transition-colors"
+              >
+                <Phone className="w-4 h-4 text-blue-400" />
+                <span className="text-[11px] leading-tight">전화상담</span>
+              </a>
               <a
                 href={company.kakaoLink || '#'}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={handleNavClick}
-                className="py-3 rounded-xl bg-[#FEE500] text-[#3c1e1e] font-bold text-center text-sm flex items-center justify-center gap-1.5 shadow-sm"
+                className="py-2.5 px-1 rounded-xl bg-[#FEE500] text-[#3c1e1e] font-bold text-center text-xs flex flex-col items-center justify-center gap-1 shadow-xs hover:brightness-95 transition-all"
               >
                 <MessageCircle className="w-4 h-4 fill-current" />
-                카톡 상담
+                <span className="text-[11px] leading-tight">카톡상담</span>
               </a>
               <a
-                href={`tel:${company.phone}`}
+                href={`sms:${cleanPhone}`}
                 onClick={handleNavClick}
-                className="py-3 rounded-xl bg-blue-600 text-white font-bold text-center text-sm flex items-center justify-center gap-1.5 shadow-md shadow-blue-500/20"
+                className="py-2.5 px-1 rounded-xl bg-emerald-600 text-white font-bold text-center text-xs flex flex-col items-center justify-center gap-1 shadow-xs hover:bg-emerald-700 transition-colors"
               >
-                <Phone className="w-4 h-4" />
-                전화 걸기
+                <MessageSquare className="w-4 h-4 text-emerald-100" />
+                <span className="text-[11px] leading-tight">문자상담</span>
               </a>
+              <button
+                onClick={() => {
+                  handleNavClick();
+                  scrollToSection('contact');
+                }}
+                className="py-2.5 px-1 rounded-xl bg-blue-600 text-white font-bold text-center text-xs flex flex-col items-center justify-center gap-1 shadow-xs hover:bg-blue-700 transition-colors"
+              >
+                <FileText className="w-4 h-4 text-white" />
+                <span className="text-[11px] leading-tight">무료견적</span>
+              </button>
             </div>
           </div>
         )}

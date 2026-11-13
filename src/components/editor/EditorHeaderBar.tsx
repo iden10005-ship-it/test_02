@@ -17,8 +17,13 @@ import {
   FileText,
   MapPin,
   Layers,
+  Link2,
+  Copy,
+  Check,
+  LogOut,
 } from 'lucide-react';
 import { ThemeColor, PageView, ServiceItem } from '../../types/siteData';
+import { getHashFromPage } from '../../utils/urlRouter';
 
 interface EditorHeaderBarProps {
   isEditMode: boolean;
@@ -39,6 +44,7 @@ interface EditorHeaderBarProps {
   onExportJson: () => void;
   onImportJson: (file: File) => void;
   onReset: () => void;
+  onExitAdmin?: () => void;
 }
 
 export const EditorHeaderBar: React.FC<EditorHeaderBarProps> = ({
@@ -60,8 +66,22 @@ export const EditorHeaderBar: React.FC<EditorHeaderBarProps> = ({
   onExportJson,
   onImportJson,
   onReset,
+  onExitAdmin,
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [copiedUrl, setCopiedUrl] = React.useState(false);
+
+  const rawHash = getHashFromPage(currentPage);
+  const relativePath = rawHash ? `/${rawHash}` : '/';
+  const fullDomainUrl = typeof window !== 'undefined'
+    ? `${window.location.origin}${window.location.pathname.endsWith('/') ? window.location.pathname : window.location.pathname + '/'}${rawHash.startsWith('/') ? rawHash.slice(1) : rawHash}`
+    : `https://clearworks.kr${relativePath}`;
+
+  const handleCopyUrl = () => {
+    navigator.clipboard.writeText(fullDomainUrl);
+    setCopiedUrl(true);
+    setTimeout(() => setCopiedUrl(false), 2000);
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -328,7 +348,53 @@ export const EditorHeaderBar: React.FC<EditorHeaderBarProps> = ({
             >
               <RotateCcw className="w-3.5 h-3.5" />
             </button>
+
+            {onExitAdmin && (
+              <button
+                onClick={onExitAdmin}
+                className="ml-1 inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-red-500/20 text-slate-300 hover:text-red-300 border border-slate-700 hover:border-red-500/40 text-[11px] font-bold transition-colors"
+                title="웹빌더 도구 숨기고 외부 방문자 화면으로 보기"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">관리자 나가기</span>
+              </button>
+            )}
           </div>
+        </div>
+      </div>
+
+      {/* Internal URL Path Address Bar (Exact live reflection of internal URL for this page) */}
+      <div className="bg-slate-950 text-slate-300 text-[11px] py-1.5 px-3 sm:px-4 border-t border-slate-800 flex flex-wrap items-center justify-between gap-2">
+        <div className="flex items-center gap-1.5 min-w-0 flex-1">
+          <Link2 className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+          <span className="text-slate-400 font-bold shrink-0">현재 세부 URL:</span>
+          <code className="font-mono text-emerald-400 font-bold bg-slate-900 px-2 py-0.5 rounded border border-slate-800 text-[11px] select-all truncate">
+            {relativePath}
+          </code>
+          <span className="text-[10px] text-slate-500 hidden md:inline truncate">
+            (전체: {fullDomainUrl})
+          </span>
+        </div>
+
+        <div className="flex items-center gap-1.5 shrink-0">
+          <button
+            type="button"
+            onClick={handleCopyUrl}
+            className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-blue-600/30 hover:bg-blue-600/50 text-blue-300 text-[11px] font-bold border border-blue-500/40 transition-colors"
+            title="현재 페이지의 공유 URL 주소 복사"
+          >
+            {copiedUrl ? (
+              <>
+                <Check className="w-3 h-3 text-emerald-400" />
+                <span className="text-emerald-300">주소 복사됨!</span>
+              </>
+            ) : (
+              <>
+                <Copy className="w-3 h-3" />
+                <span>주소 복사</span>
+              </>
+            )}
+          </button>
         </div>
       </div>
 

@@ -143,43 +143,43 @@ export const RegionApartmentAndKnowHowSection: React.FC<RegionApartmentAndKnowHo
   };
 
   return (
-    <section className="space-y-10 my-10">
+    <section className="space-y-6 sm:space-y-10 my-6 sm:my-10">
       {/* Top Banner: Regional Environmental Analysis */}
-      <div className="bg-gradient-to-r from-slate-900 via-blue-950 to-indigo-950 text-white rounded-3xl p-6 sm:p-8 shadow-xl border border-slate-800 relative overflow-hidden">
+      <div className="bg-gradient-to-r from-slate-900 via-blue-950 to-indigo-950 text-white rounded-2xl sm:rounded-3xl p-4 sm:p-7 md:p-8 shadow-xl border border-slate-800 relative overflow-hidden">
         <div className="absolute right-0 top-0 bottom-0 w-1/3 bg-radial from-blue-600/10 to-transparent pointer-events-none" />
         
-        <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
+        <div className="flex flex-wrap items-center justify-between gap-2.5 mb-3 sm:mb-4">
           <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="text-xs font-bold uppercase tracking-wider text-blue-300">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-blue-300">
               ClearWorks Engineering Standard
             </span>
           </div>
-          <span className="text-xs text-slate-300 bg-white/10 px-3 py-1 rounded-full border border-white/10">
-            📍 [{regionName}] 지역 맞춤 시공 기준 적용
+          <span className="text-[11px] sm:text-xs text-slate-300 bg-white/10 px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full border border-white/10">
+            📍 [{regionName}] 맞춤 기준 적용
           </span>
         </div>
 
-        <h2 className="text-xl sm:text-3xl font-black text-white tracking-tight mb-3">
+        <h2 className="text-lg sm:text-2xl md:text-3xl font-black text-white tracking-tight leading-snug mb-2 sm:mb-3">
           [{regionName}] 주요 아파트 단지 정보 & 특화 작업 노하우
         </h2>
-        <p className="text-sm text-slate-300 max-w-2xl leading-relaxed mb-6">
+        <p className="text-xs sm:text-sm text-slate-300 max-w-2xl leading-relaxed mb-4 sm:mb-6">
           {regionName} 관내 아파트들은 단지 연식, 도로 인접성, 창호 시스템(슬라이딩/유리난간/커튼월)에 따라 오염 원인과 청소 공법이 다릅니다. 클리어웍스는 단지별 맞춤 장비와 공법으로 창틀 손상 없이 100% 안전하게 시공합니다.
         </p>
 
         {/* Environmental Factor Tags */}
-        <div className="bg-white/5 backdrop-blur-md rounded-2xl p-4 border border-white/10">
-          <div className="text-xs font-bold text-blue-300 mb-2.5 flex items-center gap-1.5">
-            <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
+        <div className="bg-white/5 backdrop-blur-md rounded-xl sm:rounded-2xl p-3 sm:p-4 border border-white/10">
+          <div className="text-[11px] sm:text-xs font-bold text-blue-300 mb-2 flex items-center gap-1.5">
+            <Sparkles className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
             <span>[{regionName}] 관내 핵심 오염 원인 및 환경 요인</span>
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-1.5 sm:gap-2">
             {environmentalFactors.map((factor, idx) => (
               <span
                 key={idx}
-                className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/15 text-slate-200 text-xs font-medium border border-white/10 flex items-center gap-1.5 transition-colors"
+                className="px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg sm:rounded-xl bg-white/10 hover:bg-white/15 text-slate-200 text-[11px] sm:text-xs font-medium border border-white/10 flex items-center gap-1.5 transition-colors"
               >
-                <span className="w-1.5 h-1.5 rounded-full bg-blue-400" />
+                <span className="w-1.5 h-1.5 rounded-full bg-blue-400 shrink-0" />
                 {factor}
               </span>
             ))}
@@ -188,11 +188,11 @@ export const RegionApartmentAndKnowHowSection: React.FC<RegionApartmentAndKnowHo
       </div>
 
       {/* Navigation Filter Tabs */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 pb-3">
-        <div className="flex items-center gap-1.5 bg-slate-100 p-1 rounded-2xl border border-slate-200">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 border-b border-slate-200 pb-3">
+        <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl sm:rounded-2xl border border-slate-200 overflow-x-auto no-scrollbar">
           <button
             onClick={() => setActiveTab('both')}
-            className={`px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold transition-all ${
+            className={`px-3 py-1.5 rounded-lg sm:rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all ${
               activeTab === 'both' ? 'bg-white text-blue-600 shadow-xs' : 'text-slate-600 hover:text-slate-900'
             }`}
           >
@@ -200,21 +200,21 @@ export const RegionApartmentAndKnowHowSection: React.FC<RegionApartmentAndKnowHo
           </button>
           <button
             onClick={() => setActiveTab('apartments')}
-            className={`px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1.5 transition-all ${
+            className={`px-3 py-1.5 rounded-lg sm:rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1 whitespace-nowrap transition-all ${
               activeTab === 'apartments' ? 'bg-white text-blue-600 shadow-xs' : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            <Building className="w-3.5 h-3.5" />
-            <span>주요 아파트 단지 ({apartments.length})</span>
+            <Building className="w-3.5 h-3.5 shrink-0" />
+            <span>아파트 단지 ({apartments.length})</span>
           </button>
           <button
             onClick={() => setActiveTab('knowhow')}
-            className={`px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1.5 transition-all ${
+            className={`px-3 py-1.5 rounded-lg sm:rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1 whitespace-nowrap transition-all ${
               activeTab === 'knowhow' ? 'bg-white text-blue-600 shadow-xs' : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            <Wrench className="w-3.5 h-3.5" />
-            <span>특화 작업 노하우 ({knowHows.length})</span>
+            <Wrench className="w-3.5 h-3.5 shrink-0" />
+            <span>시공 노하우 ({knowHows.length})</span>
           </button>
         </div>
 
@@ -224,7 +224,7 @@ export const RegionApartmentAndKnowHowSection: React.FC<RegionApartmentAndKnowHo
             const el = document.getElementById('region-quote') || document.getElementById('contact');
             if (el) el.scrollIntoView({ behavior: 'smooth' });
           }}
-          className="text-xs font-bold text-blue-600 hover:text-blue-700 bg-blue-50 px-3.5 py-2 rounded-xl border border-blue-200/80 flex items-center gap-1 transition-all"
+          className="text-xs font-bold text-blue-600 hover:text-blue-700 bg-blue-50 px-3 py-2 rounded-xl border border-blue-200/80 flex items-center justify-center gap-1 transition-all"
         >
           <span>{regionName} 아파트 무료 실측 신청</span>
           <ChevronRight className="w-3.5 h-3.5" />
@@ -233,17 +233,17 @@ export const RegionApartmentAndKnowHowSection: React.FC<RegionApartmentAndKnowHo
 
       {/* SECTION 1: Major Apartment Complexes */}
       {(activeTab === 'both' || activeTab === 'apartments') && (
-        <div className="space-y-6">
-          <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="space-y-4 sm:space-y-6">
+          <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-100 text-blue-800 text-xs font-bold mb-2">
-                <Building className="w-3.5 h-3.5 text-blue-600" />
-                <span>[{regionName}] 아파트별 창호 구조 & 맞춤 가이드</span>
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full bg-blue-100 text-blue-800 text-[11px] sm:text-xs font-bold mb-1.5 sm:mb-2">
+                <Building className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-blue-600 shrink-0" />
+                <span>[{regionName}] 창호 구조 & 맞춤 가이드</span>
               </div>
-              <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+              <h3 className="text-lg sm:text-2xl font-black text-slate-900 tracking-tight leading-snug">
                 {regionName} 주요 시공 아파트 단지 리스트
               </h3>
-              <p className="text-xs sm:text-sm text-slate-500">
+              <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
                 주민들이 가장 많이 의뢰하시는 단지 목록입니다. 거주하시는 단지를 찾아 최적의 시공 솔루션을 확인해보세요.
               </p>
             </div>
@@ -251,32 +251,32 @@ export const RegionApartmentAndKnowHowSection: React.FC<RegionApartmentAndKnowHo
             {isEditMode && onUpdateApartments && (
               <button
                 onClick={handleAddApartment}
-                className="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm transition-all"
+                className="px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm transition-all"
               >
-                <Plus className="w-4 h-4" />
+                <Plus className="w-3.5 h-3.5" />
                 <span>새 단지 추가</span>
               </button>
             )}
           </div>
 
           {/* Search & Filter Controls */}
-          <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-3.5 rounded-2xl border border-slate-200 shadow-2xs">
-            <div className="relative flex-1 min-w-[220px]">
-              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 sm:gap-3 bg-white p-2.5 sm:p-3.5 rounded-xl sm:rounded-2xl border border-slate-200 shadow-2xs">
+            <div className="relative flex-1 min-w-[200px]">
+              <Search className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
-                placeholder={`${regionName} 내 아파트명 또는 동명 검색 (예: 래미안, 자이, 대치동)...`}
+                placeholder={`${regionName} 내 아파트명 또는 동명 검색...`}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-4 py-2 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                className="w-full pl-8 sm:pl-9 pr-3 py-1.5 sm:py-2 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
               />
             </div>
 
-            <div className="flex items-center gap-1.5 text-xs">
-              <span className="text-slate-400 text-[11px] hidden sm:inline">단지 필터:</span>
+            <div className="flex items-center gap-1 sm:gap-1.5 text-xs overflow-x-auto no-scrollbar">
+              <span className="text-slate-400 text-[10px] sm:text-[11px] hidden md:inline shrink-0">단지 필터:</span>
               <button
                 onClick={() => setSelectedFilter('all')}
-                className={`px-3 py-1.5 rounded-xl font-bold transition-all ${
+                className={`px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg sm:rounded-xl font-bold whitespace-nowrap text-[11px] sm:text-xs transition-all ${
                   selectedFilter === 'all'
                     ? 'bg-blue-600 text-white shadow-xs'
                     : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
@@ -286,31 +286,31 @@ export const RegionApartmentAndKnowHowSection: React.FC<RegionApartmentAndKnowHo
               </button>
               <button
                 onClick={() => setSelectedFilter('large')}
-                className={`px-3 py-1.5 rounded-xl font-bold transition-all ${
+                className={`px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg sm:rounded-xl font-bold whitespace-nowrap text-[11px] sm:text-xs transition-all ${
                   selectedFilter === 'large'
                     ? 'bg-blue-600 text-white shadow-xs'
                     : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                 }`}
               >
-                1,000세대 이상 대단지
+                1,000세대+
               </button>
               <button
                 onClick={() => setSelectedFilter('system')}
-                className={`px-3 py-1.5 rounded-xl font-bold transition-all ${
+                className={`px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg sm:rounded-xl font-bold whitespace-nowrap text-[11px] sm:text-xs transition-all ${
                   selectedFilter === 'system'
                     ? 'bg-blue-600 text-white shadow-xs'
                     : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                 }`}
               >
-                시스템창호·조망형
+                시스템창호
               </button>
             </div>
           </div>
 
           {/* Apartment Grid Cards */}
           {filteredApartments.length === 0 ? (
-            <div className="bg-slate-50 rounded-2xl p-8 text-center border border-slate-200">
-              <p className="text-slate-500 text-sm mb-2">검색된 아파트 단지가 없습니다.</p>
+            <div className="bg-slate-50 rounded-2xl p-6 sm:p-8 text-center border border-slate-200">
+              <p className="text-slate-500 text-xs sm:text-sm mb-2">검색된 아파트 단지가 없습니다.</p>
               <button
                 onClick={() => {
                   setSearchQuery('');
@@ -322,27 +322,27 @@ export const RegionApartmentAndKnowHowSection: React.FC<RegionApartmentAndKnowHo
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-5">
               {filteredApartments.map((apt) => (
                 <div
                   key={apt.id}
-                  className="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm hover:shadow-xl hover:border-blue-300 transition-all duration-200 flex flex-col justify-between group relative"
+                  className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-5 border border-slate-200 shadow-sm hover:shadow-xl hover:border-blue-300 transition-all duration-200 flex flex-col justify-between group relative"
                 >
                   {/* Card Header */}
                   <div>
-                    <div className="flex items-start justify-between gap-2 mb-3">
+                    <div className="flex items-start justify-between gap-2 mb-2 sm:mb-3">
                       <div>
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 font-extrabold text-[10px] border border-blue-200/60">
+                        <div className="flex items-center gap-1.5 mb-1">
+                          <span className="px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 font-extrabold text-[10px] border border-blue-200/60">
                             {apt.dong}
                           </span>
                           {apt.householdCount && (
-                            <span className="text-[11px] font-semibold text-slate-500">
+                            <span className="text-[10px] sm:text-[11px] font-semibold text-slate-500">
                               {apt.householdCount}
                             </span>
                           )}
                         </div>
-                        <h4 className="text-base sm:text-lg font-black text-slate-900 group-hover:text-blue-600 transition-colors">
+                        <h4 className="text-sm sm:text-base md:text-lg font-black text-slate-900 group-hover:text-blue-600 transition-colors">
                           <EditableText
                             value={apt.name}
                             onSave={(val) => handleUpdateApartment(apt.id, 'name', val)}
@@ -355,13 +355,13 @@ export const RegionApartmentAndKnowHowSection: React.FC<RegionApartmentAndKnowHo
                       {/* Satisfaction or Case Badge */}
                       <div className="flex flex-col items-end shrink-0">
                         {apt.satisfactionRate && (
-                          <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-lg border border-emerald-200/60 flex items-center gap-1">
-                            <ThumbsUp className="w-2.5 h-2.5 text-emerald-600" />
-                            {apt.satisfactionRate} 만족
+                          <span className="text-[9px] sm:text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 sm:px-2 py-0.5 rounded-md sm:rounded-lg border border-emerald-200/60 flex items-center gap-1">
+                            <ThumbsUp className="w-2.5 h-2.5 text-emerald-600 shrink-0" />
+                            {apt.satisfactionRate}
                           </span>
                         )}
                         {apt.caseCount && (
-                          <span className="text-[10px] font-medium text-slate-400 mt-0.5">
+                          <span className="text-[9px] sm:text-[10px] font-medium text-slate-400 mt-0.5">
                             시공 {apt.caseCount}건+
                           </span>
                         )}
@@ -369,12 +369,12 @@ export const RegionApartmentAndKnowHowSection: React.FC<RegionApartmentAndKnowHo
                     </div>
 
                     {/* Window Type Pill */}
-                    <div className="p-2.5 bg-slate-50 rounded-2xl border border-slate-100 mb-3.5">
-                      <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 flex items-center gap-1">
-                        <Layers className="w-3 h-3 text-blue-500" />
+                    <div className="p-2 sm:p-2.5 bg-slate-50 rounded-xl sm:rounded-2xl border border-slate-100 mb-2.5 sm:mb-3.5">
+                      <div className="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5 flex items-center gap-1">
+                        <Layers className="w-3 h-3 text-blue-500 shrink-0" />
                         <span>창호 및 난간 구조</span>
                       </div>
-                      <div className="text-xs font-bold text-slate-800">
+                      <div className="text-[11px] sm:text-xs font-bold text-slate-800">
                         <EditableText
                           value={apt.windowType}
                           onSave={(val) => handleUpdateApartment(apt.id, 'windowType', val)}
@@ -385,12 +385,12 @@ export const RegionApartmentAndKnowHowSection: React.FC<RegionApartmentAndKnowHo
                     </div>
 
                     {/* Key Cleaning Point */}
-                    <div className="space-y-1.5 mb-4">
-                      <div className="text-[11px] font-extrabold text-blue-600 flex items-center gap-1">
-                        <Sparkles className="w-3 h-3" />
+                    <div className="space-y-1 mb-3">
+                      <div className="text-[10px] sm:text-[11px] font-extrabold text-blue-600 flex items-center gap-1">
+                        <Sparkles className="w-3 h-3 shrink-0" />
                         <span>핵심 시공 포인트</span>
                       </div>
-                      <p className="text-xs text-slate-600 leading-relaxed bg-blue-50/40 p-2.5 rounded-xl border border-blue-100/60">
+                      <p className="text-[11px] sm:text-xs text-slate-600 leading-relaxed bg-blue-50/40 p-2 sm:p-2.5 rounded-xl border border-blue-100/60">
                         <EditableText
                           value={apt.keyCleaningPoint}
                           onSave={(val) => handleUpdateApartment(apt.id, 'keyCleaningPoint', val)}
@@ -402,18 +402,18 @@ export const RegionApartmentAndKnowHowSection: React.FC<RegionApartmentAndKnowHo
                   </div>
 
                   {/* Card Footer: Recommended Service & CTA */}
-                  <div className="pt-3 border-t border-slate-100 space-y-3">
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="text-[11px] text-slate-400">추천 서비스</span>
-                      <span className="font-bold text-slate-800 bg-slate-100 px-2 py-0.5 rounded-md text-[11px]">
+                  <div className="pt-2.5 sm:pt-3 border-t border-slate-100 space-y-2.5 sm:space-y-3">
+                    <div className="flex items-center justify-between text-[11px] sm:text-xs">
+                      <span className="text-slate-400">추천 서비스</span>
+                      <span className="font-bold text-slate-800 bg-slate-100 px-2 py-0.5 rounded-md text-[10px] sm:text-[11px]">
                         {apt.recommendedService}
                       </span>
                     </div>
 
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1.5 sm:gap-2">
                       <button
                         onClick={() => handleInquireComplex(apt.name)}
-                        className="flex-1 py-2.5 px-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center justify-center gap-1 shadow-sm transition-all group-hover:shadow-md"
+                        className="flex-1 py-2 sm:py-2.5 px-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center justify-center gap-1 shadow-sm transition-all group-hover:shadow-md"
                       >
                         <span>이 단지 견적 문의</span>
                         <ChevronRight className="w-3.5 h-3.5" />
@@ -422,10 +422,10 @@ export const RegionApartmentAndKnowHowSection: React.FC<RegionApartmentAndKnowHo
                       {isEditMode && onUpdateApartments && (
                         <button
                           onClick={() => handleDeleteApartment(apt.id)}
-                          className="p-2 text-rose-500 hover:bg-rose-50 rounded-xl transition-colors"
+                          className="p-1.5 sm:p-2 text-rose-500 hover:bg-rose-50 rounded-xl transition-colors"
                           title="단지 삭제"
                         >
-                          <Trash2 className="w-4 h-4" />
+                          <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                         </button>
                       )}
                     </div>
@@ -439,44 +439,44 @@ export const RegionApartmentAndKnowHowSection: React.FC<RegionApartmentAndKnowHo
 
       {/* SECTION 2: Region-Specific Technical Work Know-How */}
       {(activeTab === 'both' || activeTab === 'knowhow') && (
-        <div className="space-y-6 pt-4">
+        <div className="space-y-4 sm:space-y-6 pt-2 sm:pt-4">
           <div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold mb-2">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full bg-emerald-100 text-emerald-800 text-[11px] sm:text-xs font-bold mb-1.5 sm:mb-2">
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
               <span>클리어웍스 현장 엔지니어링 표준</span>
             </div>
-            <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+            <h3 className="text-lg sm:text-2xl font-black text-slate-900 tracking-tight leading-snug">
               [{regionName}] 지역 특화 시공 노하우 & 기술 사양
             </h3>
-            <p className="text-xs sm:text-sm text-slate-500">
+            <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
               일반 청소업체와 차별화되는 고소 외창 안전 공법과 과학적 나노 케미컬 기술을 공개합니다.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
             {knowHows.map((kh, idx) => (
               <div
                 key={kh.id}
-                className="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/90 shadow-sm hover:shadow-lg transition-all space-y-5"
+                className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-7 border border-slate-200/90 shadow-sm hover:shadow-lg transition-all space-y-3.5 sm:space-y-5"
               >
                 {/* Header: Category and Number */}
-                <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                <div className="flex items-center justify-between pb-2.5 sm:pb-3 border-b border-slate-100">
                   <div className="flex items-center gap-2">
-                    <span className="w-6 h-6 rounded-lg bg-blue-600 text-white font-black text-xs flex items-center justify-center shadow-xs">
+                    <span className="w-5 h-5 sm:w-6 sm:h-6 rounded-lg bg-blue-600 text-white font-black text-[11px] sm:text-xs flex items-center justify-center shadow-xs">
                       0{idx + 1}
                     </span>
-                    <span className="px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 font-extrabold text-xs">
+                    <span className="px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 font-extrabold text-[11px] sm:text-xs">
                       {kh.category}
                     </span>
                   </div>
-                  <span className="text-[11px] font-bold text-slate-400">
+                  <span className="text-[10px] sm:text-[11px] font-bold text-slate-400">
                     {company.name} 특화 공법
                   </span>
                 </div>
 
                 {/* Title & Subtitle */}
                 <div>
-                  <h4 className="text-lg font-black text-slate-900 tracking-tight mb-1">
+                  <h4 className="text-base sm:text-lg font-black text-slate-900 tracking-tight leading-snug mb-1">
                     <EditableText
                       value={kh.title}
                       onSave={(val) => handleUpdateKnowHow(kh.id, 'title', val)}
@@ -495,12 +495,12 @@ export const RegionApartmentAndKnowHowSection: React.FC<RegionApartmentAndKnowHo
                 </div>
 
                 {/* Problem vs Solution Comparison Box */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 text-xs">
                   {/* Problem */}
-                  <div className="p-3.5 bg-rose-50/70 rounded-2xl border border-rose-100">
-                    <div className="flex items-center gap-1.5 text-rose-800 font-extrabold mb-1.5">
-                      <AlertTriangle className="w-3.5 h-3.5 text-rose-600" />
-                      <span>기존 시공의 문제점</span>
+                  <div className="p-3 sm:p-3.5 bg-rose-50/70 rounded-xl sm:rounded-2xl border border-rose-100">
+                    <div className="flex items-center gap-1.5 text-rose-800 font-extrabold mb-1">
+                      <AlertTriangle className="w-3.5 h-3.5 text-rose-600 shrink-0" />
+                      <span className="text-[11px] sm:text-xs">기존 시공의 문제점</span>
                     </div>
                     <p className="text-rose-900/80 leading-relaxed text-[11px]">
                       <EditableText
@@ -513,10 +513,10 @@ export const RegionApartmentAndKnowHowSection: React.FC<RegionApartmentAndKnowHo
                   </div>
 
                   {/* Solution */}
-                  <div className="p-3.5 bg-emerald-50/70 rounded-2xl border border-emerald-100">
-                    <div className="flex items-center gap-1.5 text-emerald-800 font-extrabold mb-1.5">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                      <span>클리어웍스 해결 솔루션</span>
+                  <div className="p-3 sm:p-3.5 bg-emerald-50/70 rounded-xl sm:rounded-2xl border border-emerald-100">
+                    <div className="flex items-center gap-1.5 text-emerald-800 font-extrabold mb-1">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                      <span className="text-[11px] sm:text-xs">클리어웍스 해결 솔루션</span>
                     </div>
                     <p className="text-emerald-900/80 leading-relaxed text-[11px]">
                       <EditableText
@@ -530,10 +530,10 @@ export const RegionApartmentAndKnowHowSection: React.FC<RegionApartmentAndKnowHo
                 </div>
 
                 {/* Equipment & Customer Benefit */}
-                <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 space-y-2 text-xs">
+                <div className="bg-slate-50 p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-slate-100 space-y-1.5 sm:space-y-2 text-xs">
                   <div className="flex items-start gap-2">
                     <Wrench className="w-3.5 h-3.5 text-slate-500 mt-0.5 shrink-0" />
-                    <div>
+                    <div className="text-[11px] sm:text-xs">
                       <strong className="text-slate-800">투입 장비 및 약품: </strong>
                       <span className="text-slate-600">
                         <EditableText
@@ -547,7 +547,7 @@ export const RegionApartmentAndKnowHowSection: React.FC<RegionApartmentAndKnowHo
                   </div>
                   <div className="flex items-start gap-2">
                     <Sparkles className="w-3.5 h-3.5 text-blue-500 mt-0.5 shrink-0" />
-                    <div>
+                    <div className="text-[11px] sm:text-xs">
                       <strong className="text-slate-800">고객 체감 가치: </strong>
                       <span className="text-slate-600">
                         <EditableText
@@ -567,27 +567,27 @@ export const RegionApartmentAndKnowHowSection: React.FC<RegionApartmentAndKnowHo
       )}
 
       {/* SECTION 3: Resident FAQ & Direct Quote Callout */}
-      <div className="bg-gradient-to-tr from-blue-50 via-white to-indigo-50/50 rounded-3xl p-6 sm:p-8 border border-blue-200/80 shadow-md">
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
-          <div className="space-y-2 text-center sm:text-left">
-            <div className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-blue-600 text-white text-[11px] font-bold">
+      <div className="bg-gradient-to-tr from-blue-50 via-white to-indigo-50/50 rounded-2xl sm:rounded-3xl p-5 sm:p-8 border border-blue-200/80 shadow-md">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-5 sm:gap-6">
+          <div className="space-y-1.5 sm:space-y-2 text-center sm:text-left">
+            <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-blue-600 text-white text-[10px] sm:text-[11px] font-bold">
               <Sparkles className="w-3 h-3" />
               <span>[{regionName}] 주민 특별 혜택</span>
             </div>
-            <h4 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">
+            <h4 className="text-base sm:text-lg md:text-xl font-black text-slate-900 tracking-tight leading-snug">
               거주하시는 아파트 창문 견적이 궁금하신가요?
             </h4>
-            <p className="text-xs sm:text-sm text-slate-600 max-w-xl">
+            <p className="text-xs sm:text-sm text-slate-600 max-w-xl leading-relaxed">
               단지명과 평형만 알려주시면 10분 내로 예상 시공 시간과 정찰제 할인 견적을 문자로 안내해 드립니다.
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center justify-center gap-3 shrink-0">
+          <div className="w-full sm:w-auto flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-2 sm:gap-3 shrink-0">
             <a
               href={`tel:${company.phone}`}
-              className="px-5 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs sm:text-sm flex items-center gap-2 shadow-md shadow-blue-500/20 transition-all"
+              className="w-full sm:w-auto justify-center px-5 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs sm:text-sm flex items-center gap-2 shadow-md shadow-blue-500/20 transition-all text-center"
             >
-              <Phone className="w-4 h-4" />
+              <Phone className="w-4 h-4 shrink-0" />
               <span>전화 견적 ({company.phone})</span>
             </a>
             <button
@@ -595,7 +595,7 @@ export const RegionApartmentAndKnowHowSection: React.FC<RegionApartmentAndKnowHo
                 const el = document.getElementById('region-quote') || document.getElementById('contact');
                 if (el) el.scrollIntoView({ behavior: 'smooth' });
               }}
-              className="px-5 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs sm:text-sm transition-colors"
+              className="w-full sm:w-auto justify-center px-5 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs sm:text-sm transition-colors text-center"
             >
               온라인 무료 신청
             </button>

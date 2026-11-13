@@ -14,9 +14,11 @@ import {
   Trash2,
   Phone,
   Building,
+  Lock,
 } from 'lucide-react';
 import { SiteData, ServiceItem, PriceRow, ReviewItem, FaqItem, CaseItem } from '../../types/siteData';
 import { PRESET_IMAGES } from '../../data/defaultSiteData';
+import { DEFAULT_ADMIN_PIN } from '../../utils/adminAuth';
 
 interface EditorDrawerProps {
   isOpen: boolean;
@@ -237,6 +239,38 @@ export const EditorDrawer: React.FC<EditorDrawerProps> = ({
                     }
                     className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:ring-1 focus:ring-blue-500"
                   />
+                </div>
+              </div>
+
+              {/* Admin Mode Security Section */}
+              <div className="pt-4 mt-4 border-t border-slate-200">
+                <h4 className="text-sm font-bold text-slate-900 mb-2 flex items-center gap-1.5">
+                  <Lock className="w-4 h-4 text-blue-600" />
+                  <span>관리자 모드 보안 설정</span>
+                </h4>
+                <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-2.5">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">
+                      외부 사이트 접속용 관리자 비밀번호 (기본: {DEFAULT_ADMIN_PIN})
+                    </label>
+                    <input
+                      type="text"
+                      value={siteData.adminPin ?? DEFAULT_ADMIN_PIN}
+                      onChange={(e) =>
+                        onUpdateSiteData((prev) => ({
+                          ...prev,
+                          adminPin: e.target.value,
+                        }))
+                      }
+                      placeholder={DEFAULT_ADMIN_PIN}
+                      className="w-full px-3 py-2 text-xs bg-white border border-slate-200 rounded-lg focus:ring-1 focus:ring-blue-500 font-mono"
+                    />
+                  </div>
+                  <p className="text-[11px] text-slate-500 leading-relaxed">
+                    Vercel 등 외부 배포 환경에서는 일반 방문자에게 웹빌더 도구가 노출되지 않습니다.
+                    관리자 접속이 필요할 때 <code className="px-1.5 py-0.5 rounded bg-slate-200 text-slate-800 font-mono">/#/admin</code> 경로로 접속하거나
+                    페이지 하단 <strong>관리자</strong> 버튼을 클릭해 로그인하세요.
+                  </p>
                 </div>
               </div>
             </div>

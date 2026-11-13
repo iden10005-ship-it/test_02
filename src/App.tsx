@@ -50,6 +50,9 @@ import { EditorDrawer } from './components/editor/EditorDrawer';
 import { InquiriesModal } from './components/editor/InquiriesModal';
 import { ImagePickerModal } from './components/editor/ImagePickerModal';
 import { SeoMasterModal } from './components/seo/SeoMasterModal';
+import { AdminLoginModal } from './components/editor/AdminLoginModal';
+import { getPageFromHash, getHashFromPage, getPageKey } from './utils/urlRouter';
+import { getInitialAdminState, hasAdminUrlTrigger, setAdminSession } from './utils/adminAuth';
 
 const STORAGE_KEY = 'clearworks_site_data_v8';
 
@@ -78,11 +81,19 @@ export default function App() {
     return initialTemplateData;
   });
 
-  // Navigation state: Default to home page
-  const [currentPage, setCurrentPage] = useState<PageView>({ type: 'home' });
+  // Navigation state: Initialized from URL hash if present (e.g. #/region/강남구)
+  const [currentPage, setCurrentPage] = useState<PageView>(() => {
+    return getPageFromHash();
+  });
 
-  // Editor states: Default to true as user requested to open for editing!
-  const [isEditMode, setIsEditMode] = useState<boolean>(true);
+  // Admin & Editor states:
+  // Auto-enabled in Google AI Studio / localhost for easy editing;
+  // Disabled by default on external deployments (e.g. Vercel, GitHub Pages) until logged into Admin Mode.
+  const [isAdminMode, setIsAdminMode] = useState<boolean>(() => getInitialAdminState());
+  const [isEditMode, setIsEditMode] = useState<boolean>(() => getInitialAdminState());
+  const [isAdminLoginOpen, setIsAdminLoginOpen] = useState<boolean>(
+    () => !getInitialAdminState() && hasAdminUrlTrigger()
+  );
   const [viewport, setViewport] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
 
   // Modals
@@ -91,6 +102,69 @@ export default function App() {
   const [isInquiriesOpen, setIsInquiriesOpen] = useState(false);
   const [isSeoMasterOpen, setIsSeoMasterOpen] = useState(false);
   const [imagePickerTarget, setImagePickerTarget] = useState<'hero' | { caseId: string } | null>(null);
+
+  const handleEnterAdminMode = () => {
+    setAdminSession(true);
+    setIsAdminMode(true);
+    setIsEditMode(true);
+    setIsAdminLoginOpen(false);
+    // Clean up admin trigger params/hash from URL if present
+    if (hasAdminUrlTrigger()) {
+      const cleanUrl = window.location.pathname;
+      window.history.replaceState(null, '', cleanUrl);
+    }
+  };
+
+  const handleExitAdminMode = () => {
+    setAdminSession(false);
+    setIsAdminMode(false);
+    setIsEditMode(false);
+    setViewport('desktop');
+    setIsBatchFillOpen(false);
+    setIsDrawerOpen(false);
+    setIsInquiriesOpen(false);
+    setIsSeoMasterOpen(false);
+    setImagePickerTarget(null);
+  };
+
+  // Synchronize browser address bar with internal URL on page change
+  useEffect(() => {
+    // Preserve #/admin trigger while login modal is open
+    if (isAdminLoginOpen && hasAdminUrlTrigger()) return;
+
+    const targetHash = getHashFromPage(currentPage);
+    const currentHash = window.location.hash;
+    const normalizedTarget = targetHash ? (targetHash.startsWith('#') ? targetHash : `#${targetHash}`) : '';
+    const normalizedCurrent = currentHash ? (currentHash.startsWith('#') ? currentHash : `#${currentHash}`) : '';
+
+    if (normalizedTarget !== normalizedCurrent) {
+      if (!targetHash) {
+        window.history.replaceState(null, '', window.location.pathname + window.location.search);
+      } else {
+        window.history.pushState(null, '', targetHash);
+      }
+    }
+  }, [currentPage, isAdminLoginOpen]);
+
+  // Listen to browser Back/Forward navigation or manual address bar changes
+  useEffect(() => {
+    const handleHashChange = () => {
+      if (hasAdminUrlTrigger()) {
+        if (!isAdminMode) {
+          setIsAdminLoginOpen(true);
+        }
+        return;
+      }
+      const pageFromHash = getPageFromHash();
+      setCurrentPage(pageFromHash);
+    };
+    window.addEventListener('hashchange', handleHashChange);
+    window.addEventListener('popstate', handleHashChange);
+    return () => {
+      window.removeEventListener('hashchange', handleHashChange);
+      window.removeEventListener('popstate', handleHashChange);
+    };
+  }, [isAdminMode]);
 
   // Save to localStorage whenever siteData changes
   useEffect(() => {
@@ -101,25 +175,42 @@ export default function App() {
     }
   }, [siteData]);
 
-  // Dynamic SEO metadata & JSON-LD updates on page change
+  // Dynamic SEO metadata, keywords & JSON-LD updates on page change
   useEffect(() => {
-    let title = `${siteData.hero.title} | ${siteData.company.name}`;
-    let description = `${siteData.hero.subtitle} 전화상담: ${siteData.company.phone}`;
+    const pageKey = getPageKey(currentPage);
+    const customPageSeo = siteData.seo?.pages?.[pageKey];
 
-    if (currentPage.type === 'service') {
-      const srv = siteData.services.items.find((s) => s.id === currentPage.serviceId);
-      if (srv) {
-        title = `[${siteData.company.region}] ${srv.title} 전문 클리닝 | ${siteData.company.name}`;
-        description = `${srv.description} ${srv.detail?.tagline || ''} 무료견적: ${siteData.company.phone}`;
+    let title = customPageSeo?.title || `${siteData.hero.title} | ${siteData.company.name}`;
+    let description = customPageSeo?.description || `${siteData.hero.subtitle} 전화상담: ${siteData.company.phone}`;
+    let keywords = customPageSeo?.primaryKeywords && customPageSeo.primaryKeywords.length > 0
+      ? customPageSeo.primaryKeywords
+      : (siteData.seo?.defaultKeywords || ['유리창청소', '아파트외창청소', '외벽청소', '클리어웍스']);
+
+    if (!customPageSeo?.title) {
+      if (currentPage.type === 'service') {
+        const srv = siteData.services.items.find((s) => s.id === currentPage.serviceId);
+        if (srv) {
+          title = `[${siteData.company.region}] ${srv.title} 전문 클리닝 | ${siteData.company.name}`;
+          description = `${srv.description} ${srv.detail?.tagline || ''} 무료견적: ${siteData.company.phone}`;
+        }
+      } else if (currentPage.type === 'region') {
+        title = `[${currentPage.regionName}] 유리창청소 전문 | ${siteData.company.name}`;
+        description = `${currentPage.regionName} 전지역 아파트 외창 및 상가 통유리 클리닝. 배상책임보험 가입, 당일 방문 실측.`;
+      } else if (currentPage.type === 'matrix') {
+        const srv = siteData.services.items.find((s) => s.id === currentPage.serviceId);
+        const sTitle = srv ? srv.title : '유리창 청소';
+        title = `[${currentPage.regionName}] ${sTitle} 전문 | ${siteData.company.name}`;
+        description = `${currentPage.regionName} ${sTitle} 시공 사례, 작업 범위 및 가격 가이드. ${siteData.company.phone}`;
+      } else if (currentPage.type === 'gallery_list') {
+        title = `시공 갤러리 & 작업 현장 일지 | ${siteData.company.name}`;
+        description = `클리어웍스가 직접 시공한 서울·경기·인천 아파트 및 상가 유리창 청소 전후 현장 사례입니다.`;
+      } else if (currentPage.type === 'gallery_detail') {
+        const post = siteData.gallery?.posts.find((p) => p.id === currentPage.postId);
+        if (post) {
+          title = `${post.title} | ${siteData.company.name}`;
+          description = post.excerpt || post.title;
+        }
       }
-    } else if (currentPage.type === 'region') {
-      title = `[${currentPage.regionName}] 유리창청소 전문 | ${siteData.company.name}`;
-      description = `${currentPage.regionName} 전지역 아파트 외창 및 상가 통유리 클리닝. 배상책임보험 가입, 당일 방문 실측.`;
-    } else if (currentPage.type === 'matrix') {
-      const srv = siteData.services.items.find((s) => s.id === currentPage.serviceId);
-      const sTitle = srv ? srv.title : '유리창 청소';
-      title = `[${currentPage.regionName}] ${sTitle} 전문 | ${siteData.company.name}`;
-      description = `${currentPage.regionName} ${sTitle} 시공 사례, 작업 범위 및 가격 가이드. ${siteData.company.phone}`;
     }
 
     document.title = title;
@@ -129,6 +220,21 @@ export default function App() {
     if (metaDesc) {
       metaDesc.setAttribute('content', description);
     }
+
+    // Update meta keywords
+    let metaKeywords = document.querySelector('meta[name="keywords"]');
+    if (!metaKeywords) {
+      metaKeywords = document.createElement('meta');
+      metaKeywords.setAttribute('name', 'keywords');
+      document.head.appendChild(metaKeywords);
+    }
+    metaKeywords.setAttribute('content', keywords.join(', '));
+
+    // Update OpenGraph
+    const ogTitle = document.querySelector('meta[property="og:title"]');
+    if (ogTitle) ogTitle.setAttribute('content', title);
+    const ogDesc = document.querySelector('meta[property="og:description"]');
+    if (ogDesc) ogDesc.setAttribute('content', description);
 
     // Dynamic JSON-LD update
     let scriptTag = document.getElementById('jsonld-seo') as HTMLScriptElement | null;
@@ -146,6 +252,7 @@ export default function App() {
       description,
       telephone: siteData.company.phone,
       areaServed: siteData.regions.list,
+      keywords: keywords.join(', '),
     };
     scriptTag.text = JSON.stringify(jsonLdContent);
   }, [currentPage, siteData]);
@@ -595,32 +702,37 @@ export default function App() {
       ? (siteData.gallery?.posts || []).find((p) => p.id === currentPage.postId) || (siteData.gallery?.posts || [])[0]
       : null;
 
+  const effectiveEditMode = isAdminMode && isEditMode;
+
   return (
-    <div className="min-h-screen bg-slate-100 flex flex-col font-sans selection:bg-blue-500 selection:text-white">
-      {/* 1. Master Top Editor Control Bar */}
-      <EditorHeaderBar
-        isEditMode={isEditMode}
-        onToggleEditMode={() => setIsEditMode(!isEditMode)}
-        viewport={viewport}
-        onChangeViewport={setViewport}
-        theme={siteData.theme}
-        onChangeTheme={(theme: ThemeColor) => setSiteData((prev) => ({ ...prev, theme }))}
-        onOpenBatchFill={() => setIsBatchFillOpen(true)}
-        onOpenDrawer={() => setIsDrawerOpen(true)}
-        onOpenInquiries={() => setIsInquiriesOpen(true)}
-        onOpenSeoMaster={() => setIsSeoMasterOpen(true)}
-        currentPage={currentPage}
-        onNavigate={(page) => {
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-          setCurrentPage(page);
-        }}
-        services={siteData.services.items}
-        regions={siteData.regions.list}
-        inquiryCount={siteData.inquiries.length}
-        onExportJson={handleExportJson}
-        onImportJson={handleImportJson}
-        onReset={handleResetToTemplate}
-      />
+    <div className={`min-h-screen flex flex-col font-sans selection:bg-blue-500 selection:text-white ${isAdminMode ? 'bg-slate-100' : 'bg-white'}`}>
+      {/* 1. Master Top Editor Control Bar (Admin Mode Only) */}
+      {isAdminMode && (
+        <EditorHeaderBar
+          isEditMode={effectiveEditMode}
+          onToggleEditMode={() => setIsEditMode((prev) => !prev)}
+          viewport={viewport}
+          onChangeViewport={setViewport}
+          theme={siteData.theme}
+          onChangeTheme={(theme: ThemeColor) => setSiteData((prev) => ({ ...prev, theme }))}
+          onOpenBatchFill={() => setIsBatchFillOpen(true)}
+          onOpenDrawer={() => setIsDrawerOpen(true)}
+          onOpenInquiries={() => setIsInquiriesOpen(true)}
+          onOpenSeoMaster={() => setIsSeoMasterOpen(true)}
+          currentPage={currentPage}
+          onNavigate={(page) => {
+            window.scrollTo({ top: 0, behavior: 'instant' });
+            setCurrentPage(page);
+          }}
+          services={siteData.services.items}
+          regions={siteData.regions.list}
+          inquiryCount={siteData.inquiries.length}
+          onExportJson={handleExportJson}
+          onImportJson={handleImportJson}
+          onReset={handleResetToTemplate}
+          onExitAdmin={handleExitAdminMode}
+        />
+      )}
 
       {/* 2. Main Website Viewport Container */}
       <div className={getViewportContainerClass()}>
@@ -630,22 +742,25 @@ export default function App() {
           services={siteData.services.items}
           regions={siteData.regions.list}
           currentPage={currentPage}
-          isEditMode={isEditMode}
+          isEditMode={effectiveEditMode}
           onUpdateCompany={handleUpdateCompany}
-          onNavigateHome={() => setCurrentPage({ type: 'home' })}
+          onNavigateHome={() => {
+            window.scrollTo({ top: 0, behavior: 'instant' });
+            setCurrentPage({ type: 'home' });
+          }}
           onNavigateService={(serviceId) => {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            window.scrollTo({ top: 0, behavior: 'instant' });
             setCurrentPage({ type: 'service', serviceId });
           }}
           onNavigateRegion={(regionName) => {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            window.scrollTo({ top: 0, behavior: 'instant' });
             setCurrentPage({ type: 'region', regionName });
           }}
           onNavigateGalleryList={() => {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            window.scrollTo({ top: 0, behavior: 'instant' });
             setCurrentPage({ type: 'gallery_list' });
           }}
-          onOpenSeoMaster={() => setIsSeoMasterOpen(true)}
+          onOpenSeoMaster={isAdminMode ? () => setIsSeoMasterOpen(true) : undefined}
         />
 
         {/* Dynamic Page Router */}
@@ -657,7 +772,7 @@ export default function App() {
               <HeroSection
                 hero={siteData.hero}
                 company={siteData.company}
-                isEditMode={isEditMode}
+                isEditMode={effectiveEditMode}
                 onUpdateHero={handleUpdateHero}
                 onUpdateStat={handleUpdateStat}
                 onOpenImagePicker={() => setImagePickerTarget('hero')}
@@ -668,7 +783,7 @@ export default function App() {
                 sectionTitle={siteData.services.sectionTitle}
                 sectionSubtitle={siteData.services.sectionSubtitle}
                 services={siteData.services.items}
-                isEditMode={isEditMode}
+                isEditMode={effectiveEditMode}
                 onUpdateTitle={(val) =>
                   setSiteData((prev) => ({
                     ...prev,
@@ -685,7 +800,7 @@ export default function App() {
                 onAddService={handleAddService}
                 onDeleteService={handleDeleteService}
                 onViewDetail={(serviceId) => {
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                  window.scrollTo({ top: 0, behavior: 'instant' });
                   setCurrentPage({ type: 'service', serviceId });
                 }}
               />
@@ -695,7 +810,7 @@ export default function App() {
                 sectionTitle={siteData.process.sectionTitle}
                 sectionSubtitle={siteData.process.sectionSubtitle}
                 steps={siteData.process.steps}
-                isEditMode={isEditMode}
+                isEditMode={effectiveEditMode}
                 onUpdateTitle={(val) =>
                   setSiteData((prev) => ({
                     ...prev,
@@ -716,7 +831,7 @@ export default function App() {
                 sectionTitle={siteData.cases.sectionTitle}
                 sectionSubtitle={siteData.cases.sectionSubtitle}
                 cases={siteData.cases.items}
-                isEditMode={isEditMode}
+                isEditMode={effectiveEditMode}
                 onUpdateTitle={(val) =>
                   setSiteData((prev) => ({
                     ...prev,
@@ -740,7 +855,7 @@ export default function App() {
                 sectionTitle={siteData.gallery?.sectionTitle || '작업 갤러리 & 현장 일지'}
                 sectionSubtitle={siteData.gallery?.sectionSubtitle || '클리어웍스가 직접 다녀온 생생한 현장 스토리와 청소 노하우를 확인하세요.'}
                 posts={siteData.gallery?.posts || []}
-                isEditMode={isEditMode}
+                isEditMode={effectiveEditMode}
                 onUpdateTitle={(val) =>
                   setSiteData((prev) => ({
                     ...prev,
@@ -754,11 +869,11 @@ export default function App() {
                   }))
                 }
                 onViewGalleryList={() => {
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                  window.scrollTo({ top: 0, behavior: 'instant' });
                   setCurrentPage({ type: 'gallery_list' });
                 }}
                 onSelectPost={(postId) => {
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                  window.scrollTo({ top: 0, behavior: 'instant' });
                   setCurrentPage({ type: 'gallery_detail', postId });
                 }}
               />
@@ -769,7 +884,7 @@ export default function App() {
                 sectionSubtitle={siteData.pricing.sectionSubtitle}
                 footerNote={siteData.pricing.footerNote}
                 rows={siteData.pricing.rows}
-                isEditMode={isEditMode}
+                isEditMode={effectiveEditMode}
                 onUpdateTitle={(val) =>
                   setSiteData((prev) => ({
                     ...prev,
@@ -798,7 +913,7 @@ export default function App() {
                 sectionTitle={siteData.reviews.sectionTitle}
                 sectionSubtitle={siteData.reviews.sectionSubtitle}
                 reviews={siteData.reviews.items}
-                isEditMode={isEditMode}
+                isEditMode={effectiveEditMode}
                 onUpdateTitle={(val) =>
                   setSiteData((prev) => ({
                     ...prev,
@@ -821,7 +936,7 @@ export default function App() {
                 sectionTitle={siteData.faq.sectionTitle}
                 sectionSubtitle={siteData.faq.sectionSubtitle}
                 items={siteData.faq.items}
-                isEditMode={isEditMode}
+                isEditMode={effectiveEditMode}
                 onUpdateTitle={(val) =>
                   setSiteData((prev) => ({
                     ...prev,
@@ -844,7 +959,7 @@ export default function App() {
                 sectionTitle={siteData.regions.sectionTitle}
                 sectionSubtitle={siteData.regions.sectionSubtitle}
                 regions={siteData.regions.list}
-                isEditMode={isEditMode}
+                isEditMode={effectiveEditMode}
                 onUpdateTitle={(val) =>
                   setSiteData((prev) => ({
                     ...prev,
@@ -860,7 +975,7 @@ export default function App() {
                 onAddRegion={handleAddRegion}
                 onRemoveRegion={handleRemoveRegion}
                 onViewRegion={(regionName) => {
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                  window.scrollTo({ top: 0, behavior: 'instant' });
                   setCurrentPage({ type: 'region', regionName });
                 }}
               />
@@ -871,7 +986,7 @@ export default function App() {
                 sectionSubtitle={siteData.contactForm.sectionSubtitle}
                 successMessage={siteData.contactForm.successMessage}
                 company={siteData.company}
-                isEditMode={isEditMode}
+                isEditMode={effectiveEditMode}
                 onUpdateTitle={(val) =>
                   setSiteData((prev) => ({
                     ...prev,
@@ -891,7 +1006,7 @@ export default function App() {
                   }))
                 }
                 onSubmitInquiry={handleSubmitInquiry}
-                onOpenInquiriesModal={() => setIsInquiriesOpen(true)}
+                onOpenInquiriesModal={isAdminMode ? () => setIsInquiriesOpen(true) : undefined}
                 inquiryCount={siteData.inquiries.length}
               />
             </>
@@ -903,7 +1018,7 @@ export default function App() {
               service={activeService}
               allServices={siteData.services.items}
               company={siteData.company}
-              isEditMode={isEditMode}
+              isEditMode={effectiveEditMode}
               onBack={() => setCurrentPage({ type: 'home' })}
               onSelectService={(serviceId) => setCurrentPage({ type: 'service', serviceId })}
               onUpdateService={handleUpdateService}
@@ -920,7 +1035,7 @@ export default function App() {
               company={siteData.company}
               reviews={siteData.reviews.items}
               cases={siteData.cases.items}
-              isEditMode={isEditMode}
+              isEditMode={effectiveEditMode}
               onBack={() => setCurrentPage({ type: 'home' })}
               onSelectRegion={(reg) => setCurrentPage({ type: 'region', regionName: reg })}
               onUpdateRegionDetail={handleUpdateRegionDetail}
@@ -952,10 +1067,10 @@ export default function App() {
             <GalleryListPage
               posts={siteData.gallery?.posts || []}
               company={siteData.company}
-              isEditMode={isEditMode}
+              isEditMode={effectiveEditMode}
               onBackHome={() => setCurrentPage({ type: 'home' })}
               onSelectPost={(postId) => {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
+                window.scrollTo({ top: 0, behavior: 'instant' });
                 setCurrentPage({ type: 'gallery_detail', postId });
               }}
               onAddPost={handleAddGalleryPost}
@@ -970,13 +1085,13 @@ export default function App() {
               post={activeGalleryPost}
               allPosts={siteData.gallery?.posts || []}
               company={siteData.company}
-              isEditMode={isEditMode}
+              isEditMode={effectiveEditMode}
               onBackToList={() => {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
+                window.scrollTo({ top: 0, behavior: 'instant' });
                 setCurrentPage({ type: 'gallery_list' });
               }}
               onSelectPost={(postId) => {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
+                window.scrollTo({ top: 0, behavior: 'instant' });
                 setCurrentPage({ type: 'gallery_detail', postId });
               }}
               onUpdatePost={handleUpdateGalleryPost}
@@ -988,87 +1103,99 @@ export default function App() {
         {/* Footer */}
         <Footer
           company={siteData.company}
-          isEditMode={isEditMode}
+          isEditMode={effectiveEditMode}
           onUpdateCompany={handleUpdateCompany}
+          isAdminMode={isAdminMode}
+          onOpenAdminLogin={() => setIsAdminLoginOpen(true)}
+          onLogoutAdmin={handleExitAdminMode}
         />
 
         {/* Mobile Floating Sticky Bar */}
-        <MobileStickyBar company={siteData.company} />
+        <MobileStickyBar
+          company={siteData.company}
+          onOpenQuote={() => {
+            if (currentPage.type !== 'home') {
+              setCurrentPage({ type: 'home' });
+              setTimeout(() => {
+                const contactElem = document.getElementById('contact');
+                if (contactElem) contactElem.scrollIntoView({ behavior: 'instant' });
+              }, 50);
+            } else {
+              const contactElem = document.getElementById('contact');
+              if (contactElem) contactElem.scrollIntoView({ behavior: 'instant' });
+            }
+          }}
+        />
       </div>
 
-      {/* 3. Floating Quick Action Buttons */}
-      <div className="fixed bottom-6 right-6 z-40 flex flex-col items-end gap-2.5">
-        <button
-          onClick={() => setIsSeoMasterOpen(true)}
-          className="flex items-center gap-2 px-4 py-3 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-black text-xs sm:text-sm shadow-xl shadow-blue-500/30 hover:scale-105 active:scale-95 transition-all"
-        >
-          <span>🗺️ 사이트맵 & SEO</span>
-        </button>
-        {isEditMode && (
-          <>
-            <button
-              onClick={() => setIsBatchFillOpen(true)}
-              className="flex items-center gap-2 px-4 py-3 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 font-black text-xs sm:text-sm shadow-xl shadow-orange-500/30 hover:scale-105 active:scale-95 transition-all"
-            >
-              <span>⚡ 빈칸 일괄 채우기</span>
-            </button>
-            <button
-              onClick={() => setIsDrawerOpen(true)}
-              className="flex items-center gap-2 px-4 py-3 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs sm:text-sm shadow-xl shadow-black/30 hover:scale-105 active:scale-95 transition-all"
-            >
-              <span>⚙️ 전체 설정 열기</span>
-            </button>
-          </>
-        )}
-      </div>
 
-      {/* 4. Modals */}
-      <QuickBatchFillModal
-        isOpen={isBatchFillOpen}
-        onClose={() => setIsBatchFillOpen(false)}
-        siteData={siteData}
-        onApply={handleApplyBatchFill}
-        onResetToTemplate={handleResetToTemplate}
-      />
 
-      <EditorDrawer
-        isOpen={isDrawerOpen}
-        onClose={() => setIsDrawerOpen(false)}
-        siteData={siteData}
-        onUpdateSiteData={setSiteData}
-      />
+      {/* 4. Admin Modals (Rendered only in Admin Mode) */}
+      {isAdminMode && (
+        <>
+          <QuickBatchFillModal
+            isOpen={isBatchFillOpen}
+            onClose={() => setIsBatchFillOpen(false)}
+            siteData={siteData}
+            onApply={handleApplyBatchFill}
+            onResetToTemplate={handleResetToTemplate}
+          />
 
-      <InquiriesModal
-        isOpen={isInquiriesOpen}
-        onClose={() => setIsInquiriesOpen(false)}
-        inquiries={siteData.inquiries}
-        onUpdateStatus={handleUpdateInquiryStatus}
-        onDeleteInquiry={handleDeleteInquiry}
-        onAddTestInquiry={handleAddTestInquiry}
-      />
+          <EditorDrawer
+            isOpen={isDrawerOpen}
+            onClose={() => setIsDrawerOpen(false)}
+            siteData={siteData}
+            onUpdateSiteData={setSiteData}
+          />
 
-      <ImagePickerModal
-        isOpen={!!imagePickerTarget}
-        onClose={() => setImagePickerTarget(null)}
-        beforeImage={activeImagePickerValues().before}
-        afterImage={activeImagePickerValues().after}
-        onSave={handleSavePickedImages}
-        title={activeImagePickerValues().title}
-      />
+          <InquiriesModal
+            isOpen={isInquiriesOpen}
+            onClose={() => setIsInquiriesOpen(false)}
+            inquiries={siteData.inquiries}
+            onUpdateStatus={handleUpdateInquiryStatus}
+            onDeleteInquiry={handleDeleteInquiry}
+            onAddTestInquiry={handleAddTestInquiry}
+          />
 
-      <SeoMasterModal
-        isOpen={isSeoMasterOpen}
-        onClose={() => setIsSeoMasterOpen(false)}
-        siteData={siteData}
-        onNavigateMatrix={(reg, srvId) => {
-          setCurrentPage({ type: 'matrix', regionName: reg, serviceId: srvId });
+          <ImagePickerModal
+            isOpen={!!imagePickerTarget}
+            onClose={() => setImagePickerTarget(null)}
+            beforeImage={activeImagePickerValues().before}
+            afterImage={activeImagePickerValues().after}
+            onSave={handleSavePickedImages}
+            title={activeImagePickerValues().title}
+          />
+
+          <SeoMasterModal
+            isOpen={isSeoMasterOpen}
+            onClose={() => setIsSeoMasterOpen(false)}
+            siteData={siteData}
+            currentPage={currentPage}
+            onUpdateSiteData={setSiteData}
+            onNavigateMatrix={(reg, srvId) => {
+              setCurrentPage({ type: 'matrix', regionName: reg, serviceId: srvId });
+            }}
+            onNavigateRegion={(reg) => {
+              setCurrentPage({ type: 'region', regionName: reg });
+            }}
+            onNavigateService={(srvId) => {
+              setCurrentPage({ type: 'service', serviceId: srvId });
+            }}
+          />
+        </>
+      )}
+
+      {/* 5. Admin Authentication Modal */}
+      <AdminLoginModal
+        isOpen={isAdminLoginOpen}
+        expectedPin={siteData.adminPin}
+        onClose={() => {
+          setIsAdminLoginOpen(false);
+          if (hasAdminUrlTrigger()) {
+            window.history.replaceState(null, '', window.location.pathname);
+          }
         }}
-        onNavigateRegion={(reg) => {
-          setCurrentPage({ type: 'region', regionName: reg });
-        }}
-        onNavigateService={(srvId) => {
-          setCurrentPage({ type: 'service', serviceId: srvId });
-        }}
+        onSuccess={handleEnterAdminMode}
       />
     </div>
   );

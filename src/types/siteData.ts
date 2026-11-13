@@ -206,6 +206,28 @@ export interface SiteData {
     successMessage: string;
   };
   inquiries: InquiryItem[];
+  adminPin?: string;
+  seo?: {
+    defaultKeywords?: string[];
+    pages?: {
+      [pageKey: string]: PageSeoConfig;
+    };
+  };
+}
+
+export interface PageSeoConfig {
+  title?: string;
+  description?: string;
+  primaryKeywords: string[];
+  secondaryKeywords?: string[];
+  author?: string;
+}
+
+export interface SiteSeoData {
+  defaultKeywords?: string[];
+  pages?: {
+    [pageKey: string]: PageSeoConfig;
+  };
 }
 
 export type PageView =

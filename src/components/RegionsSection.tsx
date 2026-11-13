@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { MapPin, Plus, X, Sparkles, Building2, Compass, CheckCircle2 } from 'lucide-react';
+import { MapPin, Plus, X, Sparkles, Building2, Compass, CheckCircle2, Copy, Check, Link2, Search, ExternalLink } from 'lucide-react';
 import { EditableText } from './common/EditableText';
 
 interface RegionsSectionProps {
@@ -27,6 +27,10 @@ export const RegionsSection: React.FC<RegionsSectionProps> = ({
 }) => {
   const [newRegionInput, setNewRegionInput] = useState('');
   const [isExpanded, setIsExpanded] = useState(false);
+  const [viewMode, setViewMode] = useState<'chips' | 'urls'>('chips');
+  const [searchUrlKeyword, setSearchUrlKeyword] = useState('');
+  const [copiedRegion, setCopiedRegion] = useState<string | null>(null);
+  const [copiedAll, setCopiedAll] = useState(false);
 
   const handleAdd = (e: React.FormEvent) => {
     e.preventDefault();
@@ -213,67 +217,204 @@ export const RegionsSection: React.FC<RegionsSectionProps> = ({
 
         {/* Expanded Full List (only rendered when requested) */}
         {isExpanded && (
-          <div className="mt-6 bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-lg text-left animate-in fade-in duration-200">
-            <div className="flex items-center justify-between pb-4 border-b border-slate-100 mb-6">
-              <h4 className="text-base font-black text-slate-900 flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-blue-600" />
-                <span>전체 서비스 지역 세부 목록 ({regions.length}개 지역)</span>
-              </h4>
-              <button
-                onClick={() => setIsExpanded(false)}
-                className="text-xs text-slate-400 hover:text-slate-700 font-bold"
-              >
-                닫기 ✕
-              </button>
-            </div>
+          <div className="mt-6 bg-white p-5 sm:p-8 rounded-3xl border border-slate-200 shadow-xl text-left animate-in fade-in duration-200">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100 mb-5">
+              <div>
+                <h4 className="text-base sm:text-lg font-black text-slate-900 flex items-center gap-2">
+                  <MapPin className="w-4 h-4 text-blue-600" />
+                  <span>전체 서비스 지역 세부 정보 ({regions.length}개 지역)</span>
+                </h4>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  각 지역을 클릭하여 전용 상세페이지를 확인하거나, 네이버 블로그/카카오톡 공유용 고유 URL을 복사할 수 있습니다.
+                </p>
+              </div>
 
-            <div className="flex flex-wrap gap-2">
-              {regions.map((region, idx) => (
-                <span
-                  key={`${region}-${idx}`}
-                  onClick={() => {
-                    if (onViewRegion) onViewRegion(region);
-                  }}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-50 hover:bg-blue-50 text-slate-800 hover:text-blue-700 text-xs font-semibold border border-slate-200/80 transition-colors cursor-pointer group"
-                >
-                  <MapPin className="w-3 h-3 text-blue-500 shrink-0" />
-                  <span>{region}</span>
-                  <span className="text-[10px] text-slate-300 group-hover:text-blue-600 font-extrabold">→</span>
-                  {isEditMode && (
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onRemoveRegion(idx);
-                      }}
-                      className="ml-1 p-0.5 text-slate-400 hover:text-red-500 rounded-full"
-                      title="삭제"
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
-                  )}
-                </span>
-              ))}
-            </div>
+              {/* View Mode Switcher */}
+              <div className="flex items-center gap-2">
+                <div className="flex bg-slate-100 p-0.5 rounded-xl border border-slate-200 text-xs font-bold">
+                  <button
+                    type="button"
+                    onClick={() => setViewMode('chips')}
+                    className={`px-3 py-1.5 rounded-lg transition-all ${
+                      viewMode === 'chips'
+                        ? 'bg-white text-blue-600 shadow-2xs'
+                        : 'text-slate-600 hover:text-slate-900'
+                    }`}
+                  >
+                    🏷️ 지역 태그
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setViewMode('urls')}
+                    className={`px-3 py-1.5 rounded-lg transition-all ${
+                      viewMode === 'urls'
+                        ? 'bg-blue-600 text-white shadow-2xs'
+                        : 'text-slate-600 hover:text-slate-900'
+                    }`}
+                  >
+                    🔗 고유 URL 주소 목록
+                  </button>
+                </div>
 
-            {/* Add Region in Edit Mode */}
-            {isEditMode && (
-              <form onSubmit={handleAdd} className="flex items-center gap-2 max-w-sm mt-6 pt-4 border-t border-slate-100">
-                <input
-                  type="text"
-                  value={newRegionInput}
-                  onChange={(e) => setNewRegionInput(e.target.value)}
-                  placeholder="예: 하남시 미사동"
-                  className="px-3 py-1.5 text-xs bg-slate-50 border border-slate-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-blue-500 flex-1"
-                />
                 <button
-                  type="submit"
-                  className="px-3.5 py-1.5 bg-blue-600 text-white rounded-xl text-xs font-bold hover:bg-blue-700 transition-colors flex items-center gap-1 shrink-0"
+                  onClick={() => setIsExpanded(false)}
+                  className="px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-xs text-slate-500 hover:text-slate-800 font-bold"
                 >
-                  <Plus className="w-3.5 h-3.5" />
-                  지역 추가
+                  닫기 ✕
                 </button>
-              </form>
+              </div>
+            </div>
+
+            {/* TAB 1: Chips View */}
+            {viewMode === 'chips' ? (
+              <>
+                <div className="flex flex-wrap gap-2">
+                  {regions.map((region, idx) => (
+                    <span
+                      key={`${region}-${idx}`}
+                      onClick={() => {
+                        if (onViewRegion) onViewRegion(region);
+                      }}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-50 hover:bg-blue-50 text-slate-800 hover:text-blue-700 text-xs font-semibold border border-slate-200/80 transition-colors cursor-pointer group"
+                    >
+                      <MapPin className="w-3 h-3 text-blue-500 shrink-0" />
+                      <span>{region}</span>
+                      <span className="text-[10px] text-slate-300 group-hover:text-blue-600 font-extrabold">→</span>
+                      {isEditMode && (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onRemoveRegion(idx);
+                          }}
+                          className="ml-1 p-0.5 text-slate-400 hover:text-red-500 rounded-full"
+                          title="삭제"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      )}
+                    </span>
+                  ))}
+                </div>
+
+                {/* Add Region in Edit Mode */}
+                {isEditMode && (
+                  <form onSubmit={handleAdd} className="flex items-center gap-2 max-w-sm mt-6 pt-4 border-t border-slate-100">
+                    <input
+                      type="text"
+                      value={newRegionInput}
+                      onChange={(e) => setNewRegionInput(e.target.value)}
+                      placeholder="예: 하남시 미사동"
+                      className="px-3 py-1.5 text-xs bg-slate-50 border border-slate-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-blue-500 flex-1"
+                    />
+                    <button
+                      type="submit"
+                      className="px-3.5 py-1.5 bg-blue-600 text-white rounded-xl text-xs font-bold hover:bg-blue-700 transition-colors flex items-center gap-1 shrink-0"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      지역 추가
+                    </button>
+                  </form>
+                )}
+              </>
+            ) : (
+              /* TAB 2: URL Directory View */
+              <div className="space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 bg-slate-50 p-3 rounded-2xl border border-slate-200">
+                  <div className="relative flex-1">
+                    <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                    <input
+                      type="text"
+                      value={searchUrlKeyword}
+                      onChange={(e) => setSearchUrlKeyword(e.target.value)}
+                      placeholder="지역 검색 (예: 강남구, 분당, 송도, 마포...)"
+                      className="w-full pl-8 pr-3 py-1.5 text-xs bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const origin = typeof window !== 'undefined' ? window.location.origin : 'https://clearworks.kr';
+                      const pathname = typeof window !== 'undefined' ? window.location.pathname : '/';
+                      const base = `${origin}${pathname.endsWith('/') ? pathname : pathname + '/'}`;
+                      const allListText = regions
+                        .map((reg) => `[${reg}] ${base}#/region/${encodeURIComponent(reg)}`)
+                        .join('\n');
+                      navigator.clipboard.writeText(allListText);
+                      setCopiedAll(true);
+                      setTimeout(() => setCopiedAll(false), 2000);
+                    }}
+                    className="px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-colors shrink-0"
+                  >
+                    {copiedAll ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                    <span>{copiedAll ? '전체 URL 복사 완료!' : '전체 지역 URL 일괄 복사'}</span>
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 max-h-[420px] overflow-y-auto pr-1">
+                  {regions
+                    .filter((r) => r.toLowerCase().includes(searchUrlKeyword.toLowerCase().trim()))
+                    .map((region) => {
+                      const relPath = `/#/region/${region}`;
+                      const origin = typeof window !== 'undefined' ? window.location.origin : 'https://clearworks.kr';
+                      const pathname = typeof window !== 'undefined' ? window.location.pathname : '/';
+                      const fullUrl = `${origin}${pathname.endsWith('/') ? pathname : pathname + '/'}#/region/${encodeURIComponent(region)}`;
+                      const isThisCopied = copiedRegion === region;
+
+                      return (
+                        <div
+                          key={region}
+                          className="p-3 rounded-2xl bg-slate-50 border border-slate-200/90 hover:border-blue-400 transition-all flex flex-col justify-between gap-2"
+                        >
+                          <div>
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="font-bold text-slate-900 text-xs flex items-center gap-1">
+                                <MapPin className="w-3 h-3 text-blue-600 shrink-0" />
+                                <span>{region}</span>
+                              </span>
+                              <span className="text-[10px] text-emerald-600 font-bold bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
+                                전용페이지
+                              </span>
+                            </div>
+                            <div className="bg-white px-2 py-1 rounded-lg border border-slate-200 text-[11px] font-mono text-slate-600 truncate select-all">
+                              {relPath}
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-1.5 pt-1 border-t border-slate-200/60">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                navigator.clipboard.writeText(fullUrl);
+                                setCopiedRegion(region);
+                                setTimeout(() => setCopiedRegion(null), 2000);
+                              }}
+                              className={`flex-1 py-1 px-2 rounded-lg text-[11px] font-bold flex items-center justify-center gap-1 transition-all ${
+                                isThisCopied
+                                  ? 'bg-emerald-600 text-white'
+                                  : 'bg-white hover:bg-slate-100 text-slate-700 border border-slate-200'
+                              }`}
+                            >
+                              {isThisCopied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                              <span>{isThisCopied ? '복사됨!' : 'URL 복사'}</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (onViewRegion) onViewRegion(region);
+                              }}
+                              className="py-1 px-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold flex items-center justify-center gap-1 transition-colors"
+                            >
+                              <span>이동</span>
+                              <ExternalLink className="w-3 h-3" />
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                </div>
+              </div>
             )}
           </div>
         )}

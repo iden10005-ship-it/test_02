@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sparkles, Phone, MessageCircle, ArrowUp } from 'lucide-react';
+import { Sparkles, Phone, MessageCircle, ArrowUp, Lock } from 'lucide-react';
 import { CompanyInfo } from '../types/siteData';
 import { EditableText } from './common/EditableText';
 
@@ -7,12 +7,18 @@ interface FooterProps {
   company: CompanyInfo;
   isEditMode: boolean;
   onUpdateCompany: (field: keyof CompanyInfo, value: string) => void;
+  isAdminMode?: boolean;
+  onOpenAdminLogin?: () => void;
+  onLogoutAdmin?: () => void;
 }
 
 export const Footer: React.FC<FooterProps> = ({
   company,
   isEditMode,
   onUpdateCompany,
+  isAdminMode = false,
+  onOpenAdminLogin,
+  onLogoutAdmin,
 }) => {
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -136,7 +142,31 @@ export const Footer: React.FC<FooterProps> = ({
 
           <div className="pt-4 flex flex-col sm:flex-row items-start sm:items-center justify-between text-slate-600 gap-2">
             <p>© 2026 {company.name}. All rights reserved.</p>
-            <p className="text-[11px]">배상책임보험 가입 업체 | 안전시공 인증</p>
+            <div className="flex items-center gap-3 text-[11px]">
+              <span>배상책임보험 가입 업체 | 안전시공 인증</span>
+              {!isAdminMode && onOpenAdminLogin && (
+                <button
+                  type="button"
+                  onClick={onOpenAdminLogin}
+                  className="inline-flex items-center gap-1 text-slate-600 hover:text-slate-300 transition-colors"
+                  title="관리자 모드 로그인"
+                >
+                  <Lock className="w-3 h-3" />
+                  <span>관리자</span>
+                </button>
+              )}
+              {isAdminMode && onLogoutAdmin && (
+                <button
+                  type="button"
+                  onClick={onLogoutAdmin}
+                  className="inline-flex items-center gap-1 text-emerald-500 hover:text-emerald-300 transition-colors font-semibold"
+                  title="관리자 모드 종료"
+                >
+                  <Lock className="w-3 h-3" />
+                  <span>관리자 접속 중 · 종료</span>
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </div>

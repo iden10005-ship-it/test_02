@@ -17,6 +17,7 @@ import { BeforeAfterSlider } from '../common/BeforeAfterSlider';
 import { EditableText } from '../common/EditableText';
 import { PRESET_IMAGES } from '../../data/defaultSiteData';
 import { RegionApartmentAndKnowHowSection } from '../region/RegionApartmentAndKnowHowSection';
+import { InternalUrlBar } from '../common/InternalUrlBar';
 
 interface RegionDetailPageProps {
   regionName: string;
@@ -79,14 +80,14 @@ export const RegionDetailPage: React.FC<RegionDetailPageProps> = ({
   return (
     <div className="bg-slate-50 min-h-screen pb-20">
       {/* 1. Breadcrumb Bar */}
-      <div className="bg-white border-b border-slate-200 py-3.5 px-4 sm:px-6 shadow-2xs">
+      <div className="bg-white border-b border-slate-200 py-2.5 sm:py-3.5 px-3 sm:px-6 shadow-2xs">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <button
             onClick={onBack}
-            className="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-slate-600 hover:text-blue-600 transition-colors"
+            className="inline-flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-bold text-slate-600 hover:text-blue-600 transition-colors"
           >
-            <ArrowLeft className="w-4 h-4" />
-            <span>메인 홈페이지로 돌아가기</span>
+            <ArrowLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
+            <span>메인으로 돌아가기</span>
           </button>
 
           <div className="text-xs text-slate-500 hidden sm:flex items-center gap-1.5 font-medium">
@@ -99,20 +100,27 @@ export const RegionDetailPage: React.FC<RegionDetailPageProps> = ({
         </div>
       </div>
 
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-8 space-y-12">
+      <div className="max-w-5xl mx-auto px-3 sm:px-6 pt-4 sm:pt-8 space-y-6 sm:space-y-10">
+        {/* Internal Direct URL Bar */}
+        <InternalUrlBar
+          path={`#/region/${regionName}`}
+          title={`[${regionName}] 세부페이지 고유 URL 주소 (내부주소)`}
+          subtitle={`이 주소를 네이버 블로그 링크, 카카오톡 상담, 인스타그램 등에 공유하면 [${regionName}] 전용 상세페이지로 즉시 바로 연결됩니다.`}
+        />
+
         {/* 2. Region Hero Card */}
-        <div className="bg-white rounded-3xl p-6 sm:p-10 border border-slate-200/90 shadow-xl relative overflow-hidden">
+        <div className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-8 md:p-10 border border-slate-200/90 shadow-xl relative overflow-hidden">
           <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-100 text-blue-800 text-xs font-bold mb-4">
-              <MapPin className="w-3.5 h-3.5 text-blue-600" />
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full bg-blue-100 text-blue-800 text-[11px] sm:text-xs font-bold mb-3 sm:mb-4">
+              <MapPin className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-blue-600 shrink-0" />
               <span>{regionName} 전지역 출장 가능</span>
             </div>
 
-            <h1 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight mb-4">
+            <h1 className="text-xl sm:text-3xl md:text-4xl font-black text-slate-900 tracking-tight leading-snug sm:leading-tight mb-2 sm:mb-4">
               [{regionName}] 유리창청소 전문 {company.name}
             </h1>
 
-            <p className="text-base sm:text-lg text-blue-600 font-semibold mb-4">
+            <p className="text-sm sm:text-base md:text-lg text-blue-600 font-bold mb-2.5 sm:mb-4 leading-relaxed">
               <EditableText
                 value={detail.description}
                 onSave={(val) => handleUpdate('description', val)}
@@ -121,12 +129,12 @@ export const RegionDetailPage: React.FC<RegionDetailPageProps> = ({
               />
             </p>
 
-            <p className="text-sm text-slate-600 leading-relaxed mb-6">
+            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed mb-4 sm:mb-6">
               {regionName} 관내 아파트 외창 물때부터 상가 쇼윈도, 통유리까지 전문 스퀴지 장비와 안심 배상책임보험으로 흔적 없이 맑고 투명하게 케어합니다.
             </p>
 
             {detail.notice && (
-              <div className="p-3.5 bg-blue-50/80 rounded-2xl border border-blue-200/70 text-xs text-blue-900 font-medium mb-8 flex items-center gap-2">
+              <div className="p-3 sm:p-3.5 bg-blue-50/80 rounded-xl sm:rounded-2xl border border-blue-200/70 text-xs text-blue-900 font-medium mb-5 sm:mb-8 flex items-center gap-2">
                 <Sparkles className="w-4 h-4 text-blue-600 shrink-0" />
                 <EditableText
                   value={detail.notice}
@@ -137,105 +145,105 @@ export const RegionDetailPage: React.FC<RegionDetailPageProps> = ({
               </div>
             )}
 
-            <div className="flex flex-wrap items-center gap-3">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
               <a
                 href={`tel:${company.phone}`}
-                className="px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm flex items-center gap-2 shadow-md shadow-blue-500/20 transition-all"
+                className="w-full sm:w-auto justify-center px-5 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs sm:text-sm flex items-center gap-2 shadow-md shadow-blue-500/20 transition-all text-center"
               >
-                <Phone className="w-4 h-4" />
-                {regionName} 직통 상담 ({company.phone})
+                <Phone className="w-4 h-4 shrink-0" />
+                <span>{regionName} 직통 전화 ({company.phone})</span>
               </a>
               <a
                 href={company.kakaoLink}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-6 py-3 rounded-xl bg-[#FEE500] text-[#3c1e1e] font-bold text-sm flex items-center gap-2 shadow-xs hover:brightness-95 transition-all"
+                className="w-full sm:w-auto justify-center px-5 py-3 rounded-xl bg-[#FEE500] text-[#3c1e1e] font-bold text-xs sm:text-sm flex items-center gap-2 shadow-xs hover:brightness-95 transition-all text-center"
               >
-                <MessageCircle className="w-4 h-4 fill-current" />
-                카톡 문의
+                <MessageCircle className="w-4 h-4 fill-current shrink-0" />
+                <span>카톡 문의</span>
               </a>
               <a
                 href="#region-quote"
-                className="px-6 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm transition-colors"
+                className="w-full sm:w-auto justify-center px-5 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs sm:text-sm transition-colors text-center"
               >
-                {regionName} 빠른 출장 견적
+                <span>{regionName} 빠른 출장 견적</span>
               </a>
             </div>
           </div>
         </div>
 
         {/* 3. Coverage Details & Districts */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
           {/* Sub Districts */}
-          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm">
-            <div className="flex items-center gap-2.5 mb-5 pb-3 border-b border-slate-100">
-              <div className="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center">
-                <MapPin className="w-5 h-5" />
+          <div className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 border border-slate-200 shadow-sm">
+            <div className="flex items-center gap-2 mb-4 pb-3 border-b border-slate-100">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center shrink-0">
+                <MapPin className="w-4 h-4 sm:w-5 sm:h-5" />
               </div>
-              <h3 className="text-lg font-bold text-slate-900">{regionName} 출장 가능 세부 동</h3>
+              <h3 className="text-base sm:text-lg font-bold text-slate-900">{regionName} 출장 가능 세부 동</h3>
             </div>
 
-            <p className="text-xs text-slate-500 mb-4">
+            <p className="text-xs text-slate-500 mb-3.5">
               아래 관내 모든 법정동 및 행정동에 당일/익일 출장 작업이 가능합니다.
             </p>
 
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-1.5 sm:gap-2">
               {detail.subDistricts.map((dong, idx) => (
                 <span
                   key={idx}
-                  className="px-3 py-1.5 rounded-xl bg-slate-100 text-slate-800 text-xs font-semibold border border-slate-200/80"
+                  className="px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg sm:rounded-xl bg-slate-100 text-slate-800 text-[11px] sm:text-xs font-semibold border border-slate-200/80"
                 >
                   {dong}
                 </span>
               ))}
             </div>
 
-            <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-              <span className="flex items-center gap-1.5">
-                <Clock className="w-4 h-4 text-blue-600" />
-                <span>방문 일정: <strong className="text-slate-800">{detail.leadTime}</strong></span>
+            <div className="mt-5 sm:mt-6 pt-3.5 sm:pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+              <span className="flex items-center gap-1.5 text-[11px] sm:text-xs">
+                <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-600 shrink-0" />
+                <span>방문: <strong className="text-slate-800">{detail.leadTime}</strong></span>
               </span>
-              <span className="text-[11px] text-blue-600 font-bold bg-blue-50 px-2.5 py-1 rounded-lg border border-blue-100">
+              <span className="text-[10px] sm:text-[11px] text-blue-600 font-bold bg-blue-50 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-lg border border-blue-100">
                 100% 당일/익일 출장
               </span>
             </div>
           </div>
 
           {/* Quick Regional Highlights */}
-          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm flex flex-col justify-between">
+          <div className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 border border-slate-200 shadow-sm flex flex-col justify-between">
             <div>
-              <div className="flex items-center gap-2.5 mb-5 pb-3 border-b border-slate-100">
-                <div className="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center">
-                  <Building className="w-5 h-5" />
+              <div className="flex items-center gap-2 mb-4 pb-3 border-b border-slate-100">
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center shrink-0">
+                  <Building className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
-                <h3 className="text-lg font-bold text-slate-900">{regionName} 시공 신뢰 보증</h3>
+                <h3 className="text-base sm:text-lg font-bold text-slate-900">{regionName} 시공 신뢰 보증</h3>
               </div>
 
-              <p className="text-xs text-slate-600 leading-relaxed mb-4">
-                {regionName} 관내 아파트 및 상가 유리창은 고소 작업 안전 인증 장비와 독일제 친환경 중성 케미컬을 투입하여 창틀과 실리콘 손상 없이 맑고 투명하게 복원합니다.
+              <p className="text-xs text-slate-600 leading-relaxed mb-3.5">
+                {regionName} 관내 아파트 및 상가 유리창은 고소 작업 안전 인증 장비와 독일제 친환경 중성 케미컬을 투입하여 창틀 손상 없이 투명하게 복원합니다.
               </p>
 
-              <div className="space-y-2 text-xs font-semibold text-slate-700">
-                <div className="flex items-center gap-2 p-2 rounded-xl bg-slate-50 border border-slate-100">
+              <div className="space-y-1.5 sm:space-y-2 text-[11px] sm:text-xs font-semibold text-slate-700">
+                <div className="flex items-center gap-2 p-2 sm:p-2.5 rounded-xl bg-slate-50 border border-slate-100">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                   <span>창틀 탈거 없는 실내 안전 양면 자석 시공 (추락 위험 0%)</span>
                 </div>
-                <div className="flex items-center gap-2 p-2 rounded-xl bg-slate-50 border border-slate-100">
+                <div className="flex items-center gap-2 p-2 sm:p-2.5 rounded-xl bg-slate-50 border border-slate-100">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                  <span>아랫집 낙수 피해 방지 3중 보양 및 레일 오염수 전량 회수</span>
+                  <span>아랫집 낙수 피해 방지 3중 보양 및 오염수 전량 회수</span>
                 </div>
-                <div className="flex items-center gap-2 p-2 rounded-xl bg-slate-50 border border-slate-100">
+                <div className="flex items-center gap-2 p-2 sm:p-2.5 rounded-xl bg-slate-50 border border-slate-100">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                   <span>현대해상 영업배상책임보험 1억원 가입 안전 보증</span>
                 </div>
               </div>
             </div>
 
-            <div className="mt-5 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
-              <span className="text-slate-400 font-medium">관내 아파트 단지별 맞춤 장비 보유</span>
+            <div className="mt-4 sm:mt-5 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+              <span className="text-slate-400 font-medium text-[11px] sm:text-xs">관내 단지별 맞춤 장비 보유</span>
               <a
                 href="#region-complexes"
-                className="text-blue-600 font-bold hover:underline flex items-center gap-1"
+                className="text-blue-600 font-bold hover:underline flex items-center gap-1 text-[11px] sm:text-xs"
               >
                 <span>단지별 가이드 보기 ↓</span>
               </a>
@@ -259,19 +267,17 @@ export const RegionDetailPage: React.FC<RegionDetailPageProps> = ({
         </div>
 
         {/* 5. Before & After Showcase */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
-                [{regionName}] 시공 전후 비교
-              </h2>
-              <p className="text-xs sm:text-sm text-slate-500">
-                실제 시공 사진입니다. 좌우로 드래그하여 투명한 유리창 효과를 직접 확인하세요.
-              </p>
-            </div>
+        <div className="space-y-3 sm:space-y-4">
+          <div>
+            <h2 className="text-lg sm:text-xl md:text-2xl font-extrabold text-slate-900 tracking-tight">
+              [{regionName}] 시공 전후 비교
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+              실제 시공 사진입니다. 좌우로 드래그하여 투명한 유리창 효과를 직접 확인하세요.
+            </p>
           </div>
 
-          <div className="bg-white p-3 rounded-3xl border border-slate-200 shadow-md">
+          <div className="bg-white p-2 sm:p-3 rounded-2xl sm:rounded-3xl border border-slate-200 shadow-md">
             <BeforeAfterSlider
               beforeImage={PRESET_IMAGES.beforeHero}
               afterImage={PRESET_IMAGES.afterHero}
@@ -281,16 +287,16 @@ export const RegionDetailPage: React.FC<RegionDetailPageProps> = ({
           </div>
         </div>
 
-        {/* 5. Region Specific Quote Request Form */}
-        <div id="region-quote" className="bg-gradient-to-r from-slate-900 via-blue-950 to-slate-900 rounded-3xl p-8 sm:p-10 text-white shadow-xl">
+        {/* 6. Region Specific Quote Request Form */}
+        <div id="region-quote" className="bg-gradient-to-r from-slate-900 via-blue-950 to-slate-900 rounded-2xl sm:rounded-3xl p-5 sm:p-8 md:p-10 text-white shadow-xl">
           <div className="max-w-2xl mx-auto text-center">
-            <span className="px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 text-xs font-semibold mb-3 inline-block">
+            <span className="px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full bg-blue-500/20 text-blue-300 text-[11px] sm:text-xs font-semibold mb-2 sm:mb-3 inline-block">
               {regionName} 전담 출장팀 배정
             </span>
-            <h3 className="text-2xl sm:text-3xl font-extrabold mb-3">
+            <h3 className="text-lg sm:text-2xl md:text-3xl font-extrabold mb-2 sm:mb-3 leading-snug">
               [{regionName}] 빠른 무료 견적 신청
             </h3>
-            <p className="text-sm text-slate-300 mb-8">
+            <p className="text-xs sm:text-sm text-slate-300 mb-5 sm:mb-8 leading-relaxed">
               지역명과 연락처를 남겨주시면 {regionName} 담당 엔지니어가 신속하게 정확한 견적을 안내해 드립니다.
             </p>
 
@@ -316,39 +322,39 @@ export const RegionDetailPage: React.FC<RegionDetailPageProps> = ({
                 alert(`${regionName} 지역 견적 신청이 완료되었습니다! 담당자가 곧 연락드리겠습니다.`);
                 form.reset();
               }}
-              className="space-y-3.5 text-left max-w-lg mx-auto"
+              className="space-y-2.5 sm:space-y-3.5 text-left max-w-lg mx-auto"
             >
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
                 <input
                   name="rname"
                   type="text"
                   required
                   placeholder="성함 / 고객명"
-                  className="px-4 py-2.5 rounded-xl bg-slate-800 text-white border border-slate-700 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 text-white border border-slate-700 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
                 <input
                   name="rphone"
                   type="tel"
                   required
                   placeholder="연락처 (010-0000-0000)"
-                  className="px-4 py-2.5 rounded-xl bg-slate-800 text-white border border-slate-700 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 text-white border border-slate-700 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
                 <input
                   name="raddress"
                   type="text"
                   value={quoteAddress}
                   onChange={(e) => setQuoteAddress(e.target.value)}
                   placeholder={`세부 동/아파트명 (예: ${detail.subDistricts[0] || '반포동'})`}
-                  className="px-4 py-2.5 rounded-xl bg-slate-800 text-white border border-slate-700 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 text-white border border-slate-700 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
                 <select
                   name="rbuilding"
                   value={quoteBuilding}
                   onChange={(e) => setQuoteBuilding(e.target.value)}
-                  className="px-4 py-2.5 rounded-xl bg-slate-800 text-white border border-slate-700 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 text-white border border-slate-700 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="아파트 외창 (베란다/확장형)">아파트 외창 청소</option>
                   <option value="상가·매장 통유리">상가 통유리 청소</option>
@@ -359,7 +365,7 @@ export const RegionDetailPage: React.FC<RegionDetailPageProps> = ({
 
               <button
                 type="submit"
-                className="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm transition-all shadow-md shadow-blue-500/30"
+                className="w-full py-3 sm:py-3.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs sm:text-sm transition-all shadow-md shadow-blue-500/30"
               >
                 [{regionName}] 무료 견적 신청하기
               </button>
