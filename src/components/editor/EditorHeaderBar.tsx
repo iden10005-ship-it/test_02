@@ -2,7 +2,6 @@ import React, { useRef } from 'react';
 import {
   Pencil,
   Eye,
-  Wand2,
   SlidersHorizontal,
   Smartphone,
   Tablet,
@@ -26,13 +25,13 @@ import { ThemeColor, PageView, ServiceItem } from '../../types/siteData';
 import { getHashFromPage } from '../../utils/urlRouter';
 
 interface EditorHeaderBarProps {
+  companyName?: string;
   isEditMode: boolean;
   onToggleEditMode: () => void;
   viewport: 'desktop' | 'tablet' | 'mobile';
   onChangeViewport: (vp: 'desktop' | 'tablet' | 'mobile') => void;
   theme: ThemeColor;
   onChangeTheme: (theme: ThemeColor) => void;
-  onOpenBatchFill: () => void;
   onOpenDrawer: () => void;
   onOpenInquiries: () => void;
   onOpenSeoMaster: () => void;
@@ -48,13 +47,13 @@ interface EditorHeaderBarProps {
 }
 
 export const EditorHeaderBar: React.FC<EditorHeaderBarProps> = ({
+  companyName,
   isEditMode,
   onToggleEditMode,
   viewport,
   onChangeViewport,
   theme,
   onChangeTheme,
-  onOpenBatchFill,
   onOpenDrawer,
   onOpenInquiries,
   onOpenSeoMaster,
@@ -113,7 +112,7 @@ export const EditorHeaderBar: React.FC<EditorHeaderBarProps> = ({
           <div className="flex items-center gap-1.5">
             <span className="w-2.5 h-2.5 rounded-full bg-blue-500 animate-pulse" />
             <span className="font-extrabold text-xs sm:text-sm tracking-tight text-white flex items-center gap-1">
-              <span>클리어웍스</span>
+              <span>{companyName || '클리어웍스'}</span>
               <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-400/30">
                 웹빌더
               </span>
@@ -211,7 +210,7 @@ export const EditorHeaderBar: React.FC<EditorHeaderBarProps> = ({
           </div>
         </div>
 
-        {/* Center: Tools (SEO Center, Batch Fill, Settings) */}
+        {/* Center: Tools (SEO Center, Settings) */}
         <div className="flex items-center gap-2">
           {/* SEO & Sitemap Master Button */}
           <button
@@ -221,16 +220,6 @@ export const EditorHeaderBar: React.FC<EditorHeaderBarProps> = ({
           >
             <Globe className="w-3.5 h-3.5 text-cyan-300" />
             <span>SEO & 사이트맵 마스터</span>
-          </button>
-
-          {/* Batch Fill Wizard */}
-          <button
-            onClick={onOpenBatchFill}
-            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 text-slate-950 font-black text-xs shadow-sm hover:scale-105 active:scale-95 transition-all"
-            title="빈칸([대괄호]) 일괄 채우기"
-          >
-            <Wand2 className="w-3.5 h-3.5" />
-            <span>빈칸 채우기</span>
           </button>
 
           {/* Full Drawer */}

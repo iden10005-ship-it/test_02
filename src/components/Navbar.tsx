@@ -224,8 +224,8 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               onClick={() => {
                 handleNavClick();
-                if (onNavigateHome) {
-                  onNavigateHome();
+                if (currentPage.type !== 'home') {
+                  if (onNavigateHome) onNavigateHome();
                   setTimeout(() => scrollToSection('gallery'), 50);
                 } else {
                   scrollToSection('gallery');
@@ -349,8 +349,8 @@ export const Navbar: React.FC<NavbarProps> = ({
               <button
                 onClick={() => {
                   handleNavClick();
-                  if (onNavigateHome) {
-                    onNavigateHome();
+                  if (currentPage.type !== 'home') {
+                    if (onNavigateHome) onNavigateHome();
                     setTimeout(() => scrollToSection('gallery'), 50);
                   } else {
                     scrollToSection('gallery');

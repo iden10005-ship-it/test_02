@@ -23,18 +23,18 @@ export const initialTemplateData: SiteData = {
   theme: 'blue',
   company: {
     name: '클리어웍스',
-    region: '[지역]',
+    region: '서울·경기·인천',
     phone: '010-0000-0000',
     kakaoLink: 'https://open.kakao.com',
-    representative: '[이름]',
+    representative: '김도현',
     bizNumber: '000-00-00000',
-    address: '[사업장 주소]',
+    address: '서울특별시 강남구 테헤란로 152',
     operatingHours: '평일 08:00~19:00',
     asPeriod: '7',
   },
   hero: {
     badgeText: '프리미엄 윈도우 케어',
-    title: '[지역] 유리창청소 전문\n클리어웍스',
+    title: '서울·경기·인천 유리창청소 전문\n클리어웍스',
     subtitle: '아파트 외창부터 상가·빌딩 외벽까지, 얼룩 없이 깔끔하게. 견적은 무료입니다.',
     callButtonText: '전화 상담하기',
     kakaoButtonText: '카톡으로 문의하기',
@@ -44,14 +44,14 @@ export const initialTemplateData: SiteData = {
     beforeLabel: '청소 전 (물때·먼지)',
     afterLabel: '청소 후 (클리어뷰)',
     stats: [
-      { id: 'stat-1', value: '[000]건', label: '누적 시공' },
-      { id: 'stat-2', value: '[00]년', label: '현장 경력' },
+      { id: 'stat-1', value: '3,500+건', label: '누적 시공' },
+      { id: 'stat-2', value: '10년', label: '현장 경력' },
       { id: 'stat-3', value: '보험 가입', label: '배상책임보험' },
-      { id: 'stat-4', value: '[0.0]점', label: '고객 만족도' },
+      { id: 'stat-4', value: '4.9점', label: '고객 만족도' },
     ],
   },
   services: {
-    sectionTitle: '[지역] 유리창청소 서비스',
+    sectionTitle: '서울·경기·인천 유리창청소 서비스',
     sectionSubtitle: '건물 종류와 오염 상태에 맞는 방식으로 작업합니다.',
     items: [
       {
@@ -259,8 +259,8 @@ export const initialTemplateData: SiteData = {
     items: [
       {
         id: 'case-1',
-        title: '[지역] 아파트 베란다 확장형 외창 케어',
-        specs: '34평형 · 이중창 찌든 오염 스세척',
+        title: '서울 강남구 아파트 베란다 확장형 외창 케어',
+        specs: '34평형 · 이중창 찌든 오염 세척',
         category: '아파트',
         beforeImage: PRESET_IMAGES.aptBefore,
         afterImage: PRESET_IMAGES.aptAfter,
@@ -268,7 +268,7 @@ export const initialTemplateData: SiteData = {
       },
       {
         id: 'case-2',
-        title: '[지역] 고층 아파트 거실 외창 광택 복원',
+        title: '서울 송파구 고층 아파트 거실 외창 광택 복원',
         specs: '42평형 · 난간대 오염 및 자성 스퀴지 케어',
         category: '아파트',
         beforeImage: PRESET_IMAGES.aptBefore,
@@ -277,7 +277,7 @@ export const initialTemplateData: SiteData = {
       },
       {
         id: 'case-3',
-        title: '[지역] 1층 카페 상가 통유리 정기 세척',
+        title: '서울 마포구 1층 카페 상가 통유리 정기 세척',
         specs: '1층 25평 매장 · 전면 쇼윈도 유분막 제거',
         category: '상가',
         beforeImage: PRESET_IMAGES.storeBefore,
@@ -286,7 +286,7 @@ export const initialTemplateData: SiteData = {
       },
       {
         id: 'case-4',
-        title: '[지역] 프랜차이즈 매장 전면 통유리 케어',
+        title: '경기 분당구 프랜차이즈 매장 전면 통유리 케어',
         specs: '월 2회 정기 방문 · 출입문 및 유리창 전면',
         category: '상가',
         beforeImage: PRESET_IMAGES.storeBefore,
@@ -295,7 +295,7 @@ export const initialTemplateData: SiteData = {
       },
       {
         id: 'case-5',
-        title: '[지역] 5층 중소형 빌딩 외창 복원 청소',
+        title: '서울 서초구 5층 중소형 빌딩 외창 복원 청소',
         specs: '5층 건물 전면 · 고소 외창 세척',
         category: '빌딩',
         beforeImage: PRESET_IMAGES.buildingBefore,
@@ -304,7 +304,7 @@ export const initialTemplateData: SiteData = {
       },
       {
         id: 'case-6',
-        title: '[지역] 오피스 타워 전면 커튼월 케어',
+        title: '여의도 오피스 타워 전면 커튼월 케어',
         specs: '10층 빌딩 · 외벽 유리창 불소 코팅',
         category: '빌딩',
         beforeImage: PRESET_IMAGES.buildingBefore,
@@ -495,15 +495,15 @@ export const initialTemplateData: SiteData = {
       {
         id: 'price-1',
         category: '아파트 외창',
-        standard: '[00]평형 (24평~34평 기준)',
-        price: '[00,000]원~',
+        standard: '24평~34평 기준',
+        price: '240,000원~',
         highlight: true,
       },
       {
         id: 'price-2',
         category: '상가·사무실 유리',
         standard: '유리 면적(㎡)당',
-        price: '[0,000]원~',
+        price: '8,000원~',
       },
       {
         id: 'price-3',
@@ -515,32 +515,32 @@ export const initialTemplateData: SiteData = {
         id: 'price-4',
         category: '썬팅·스티커 제거',
         standard: '면적(㎡)당',
-        price: '[0,000]원~',
+        price: '10,000원~',
       },
     ],
   },
   reviews: {
     sectionTitle: '고객 후기',
-    sectionSubtitle: '실제 후기로 교체해 주세요.',
+    sectionSubtitle: '클리어웍스를 이용하신 실제 고객님들의 소중한 후기입니다.',
     items: [
       {
         id: 'rev-1',
         content: '뿌옇던 거실 창문이 완전히 투명해져서 한강 뷰가 선명하게 살아났습니다! 작업도 꼼꼼하고 뒷마무리까지 깔끔하셔서 너무 만족스럽습니다.',
-        author: '[지역] 고객님',
+        author: '서울 강남구 고객님',
         rating: 5,
         tag: '34평 아파트 외창',
       },
       {
         id: 'rev-2',
         content: '매장 통유리에 스티커 자국이랑 기름때가 심했는데 흔적도 없이 지워주셨어요. 손님들도 매장이 훨씬 환해졌다고 좋아하십니다.',
-        author: '[지역] 고객님',
+        author: '서울 마포구 고객님',
         rating: 5,
         tag: '카페 1층 전면유리',
       },
       {
         id: 'rev-3',
         content: '견적 상담부터 친절하셨고 약속 시간도 칼같이 지켜주셨어요. 배상책임보험도 가입되어 있어 안심하고 맡길 수 있었습니다.',
-        author: '[지역] 고객님',
+        author: '경기 분당구 고객님',
         rating: 5,
         tag: '입주 전 외창 청소',
       },

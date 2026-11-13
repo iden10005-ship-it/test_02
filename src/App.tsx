@@ -44,7 +44,6 @@ import { GalleryDetailPage } from './components/pages/GalleryDetailPage';
 
 // Editor Suite
 import { EditorHeaderBar } from './components/editor/EditorHeaderBar';
-import { QuickBatchFillModal } from './components/editor/QuickBatchFillModal';
 import { EditorDrawer } from './components/editor/EditorDrawer';
 import { InquiriesModal } from './components/editor/InquiriesModal';
 import { ImagePickerModal } from './components/editor/ImagePickerModal';
@@ -52,6 +51,7 @@ import { SeoMasterModal } from './components/seo/SeoMasterModal';
 import { AdminLoginModal } from './components/editor/AdminLoginModal';
 import { getPageFromHash, getHashFromPage, getPageKey } from './utils/urlRouter';
 import { getInitialAdminState, hasAdminUrlTrigger, setAdminSession } from './utils/adminAuth';
+import { applyCompanyFieldChange, sanitizeLoadedSiteData } from './utils/siteDataSync';
 
 const STORAGE_KEY = 'clearworks_site_data_v9';
 
@@ -61,18 +61,7 @@ export default function App() {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
-        const parsed = JSON.parse(saved);
-        // Sync regions list, cases items, and gallery posts with latest initialTemplateData
-        if (parsed.regions) {
-          parsed.regions.list = initialTemplateData.regions.list;
-        }
-        if (!parsed.cases || !parsed.cases.items || parsed.cases.items.length < 6) {
-          parsed.cases = initialTemplateData.cases;
-        }
-        if (!parsed.gallery || !parsed.gallery.posts || parsed.gallery.posts.length < 6) {
-          parsed.gallery = initialTemplateData.gallery;
-        }
-        return parsed;
+        return sanitizeLoadedSiteData(JSON.parse(saved));
       }
     } catch (e) {
       console.error('Failed to load saved site data', e);
@@ -96,7 +85,6 @@ export default function App() {
   const [viewport, setViewport] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
 
   // Modals
-  const [isBatchFillOpen, setIsBatchFillOpen] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isInquiriesOpen, setIsInquiriesOpen] = useState(false);
   const [isSeoMasterOpen, setIsSeoMasterOpen] = useState(false);
@@ -119,7 +107,6 @@ export default function App() {
     setIsAdminMode(false);
     setIsEditMode(false);
     setViewport('desktop');
-    setIsBatchFillOpen(false);
     setIsDrawerOpen(false);
     setIsInquiriesOpen(false);
     setIsSeoMasterOpen(false);
@@ -258,10 +245,7 @@ export default function App() {
 
   // Company info update
   const handleUpdateCompany = (field: keyof CompanyInfo, value: string) => {
-    setSiteData((prev) => ({
-      ...prev,
-      company: { ...prev.company, [field]: value },
-    }));
+    setSiteData((prev) => applyCompanyFieldChange(prev, field, value));
   };
 
   // Hero section update
@@ -593,14 +577,6 @@ export default function App() {
     });
   };
 
-  // Batch Fill Apply
-  const handleApplyBatchFill = (updatedData: Partial<SiteData>) => {
-    setSiteData((prev) => ({
-      ...prev,
-      ...updatedData,
-    }));
-  };
-
   // Reset to original template
   const handleResetToTemplate = () => {
     setSiteData(initialTemplateData);
@@ -624,7 +600,7 @@ export default function App() {
     reader.onload = (e) => {
       try {
         const parsed = JSON.parse(e.target?.result as string);
-        setSiteData(parsed);
+        setSiteData(sanitizeLoadedSiteData(parsed));
       } catch (err) {
         alert('올바른 JSON 데이터 파일이 아닙니다.');
       }
@@ -708,13 +684,13 @@ export default function App() {
       {/* 1. Master Top Editor Control Bar (Admin Mode Only) */}
       {isAdminMode && (
         <EditorHeaderBar
+          companyName={siteData.company.name}
           isEditMode={effectiveEditMode}
           onToggleEditMode={() => setIsEditMode((prev) => !prev)}
           viewport={viewport}
           onChangeViewport={setViewport}
           theme={siteData.theme}
           onChangeTheme={(theme: ThemeColor) => setSiteData((prev) => ({ ...prev, theme }))}
-          onOpenBatchFill={() => setIsBatchFillOpen(true)}
           onOpenDrawer={() => setIsDrawerOpen(true)}
           onOpenInquiries={() => setIsInquiriesOpen(true)}
           onOpenSeoMaster={() => setIsSeoMasterOpen(true)}
@@ -1114,14 +1090,6 @@ export default function App() {
       {/* 4. Admin Modals (Rendered only in Admin Mode) */}
       {isAdminMode && (
         <>
-          <QuickBatchFillModal
-            isOpen={isBatchFillOpen}
-            onClose={() => setIsBatchFillOpen(false)}
-            siteData={siteData}
-            onApply={handleApplyBatchFill}
-            onResetToTemplate={handleResetToTemplate}
-          />
-
           <EditorDrawer
             isOpen={isDrawerOpen}
             onClose={() => setIsDrawerOpen(false)}

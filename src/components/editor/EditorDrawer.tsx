@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   X,
   Settings,
@@ -8,7 +8,6 @@ import {
   MapPin,
   DollarSign,
   Star,
-  Image as ImageIcon,
   Check,
   Plus,
   Trash2,
@@ -16,9 +15,9 @@ import {
   Building,
   Lock,
 } from 'lucide-react';
-import { SiteData, ServiceItem, PriceRow, ReviewItem, FaqItem, CaseItem } from '../../types/siteData';
-import { PRESET_IMAGES } from '../../data/defaultSiteData';
+import { SiteData } from '../../types/siteData';
 import { DEFAULT_ADMIN_PIN } from '../../utils/adminAuth';
+import { applyCompanyFieldChange } from '../../utils/siteDataSync';
 
 interface EditorDrawerProps {
   isOpen: boolean;
@@ -34,8 +33,21 @@ export const EditorDrawer: React.FC<EditorDrawerProps> = ({
   onUpdateSiteData,
 }) => {
   const [activeTab, setActiveTab] = useState<
-    'basic' | 'hero' | 'services' | 'process' | 'cases' | 'pricing' | 'reviews' | 'faq' | 'regions'
+    'basic' | 'hero' | 'services' | 'pricing' | 'reviews' | 'faq' | 'regions'
   >('basic');
+  const syncedNameRef = useRef<string>(siteData.company.name);
+  const syncedRegionRef = useRef<string>(siteData.company.region);
+
+  useEffect(() => {
+    if (isOpen) {
+      if (siteData.company.name.trim()) {
+        syncedNameRef.current = siteData.company.name;
+      }
+      if (siteData.company.region.trim()) {
+        syncedRegionRef.current = siteData.company.region;
+      }
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -104,27 +116,41 @@ export const EditorDrawer: React.FC<EditorDrawerProps> = ({
                   <input
                     type="text"
                     value={siteData.company.name}
-                    onChange={(e) =>
-                      onUpdateSiteData((prev) => ({
-                        ...prev,
-                        company: { ...prev.company, name: e.target.value },
-                      }))
-                    }
+                    onFocus={() => {
+                      if (siteData.company.name.trim()) {
+                        syncedNameRef.current = siteData.company.name;
+                      }
+                    }}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      const anchor = syncedNameRef.current;
+                      onUpdateSiteData((prev) => applyCompanyFieldChange(prev, 'name', val, anchor));
+                      if (val.trim()) {
+                        syncedNameRef.current = val;
+                      }
+                    }}
                     className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:ring-1 focus:ring-blue-500"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">활동 지역 ([지역])</label>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">활동 지역 (예: 서울·경기·인천)</label>
                   <input
                     type="text"
                     value={siteData.company.region}
-                    onChange={(e) =>
-                      onUpdateSiteData((prev) => ({
-                        ...prev,
-                        company: { ...prev.company, region: e.target.value },
-                      }))
-                    }
+                    onFocus={() => {
+                      if (siteData.company.region.trim()) {
+                        syncedRegionRef.current = siteData.company.region;
+                      }
+                    }}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      const anchor = syncedRegionRef.current;
+                      onUpdateSiteData((prev) => applyCompanyFieldChange(prev, 'region', val, anchor));
+                      if (val.trim()) {
+                        syncedRegionRef.current = val;
+                      }
+                    }}
                     className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:ring-1 focus:ring-blue-500"
                   />
                 </div>
@@ -884,7 +910,11 @@ export const EditorDrawer: React.FC<EditorDrawerProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="p-4 bg-slate-50 border-t border-slate-200 flex justify-end">
+        <div className="p-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between">
+          <span className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-700">
+            <Check className="w-3.5 h-3.5" />
+            모든 변경사항은 브라우저에 즉시 자동 저장됩니다
+          </span>
           <button
             type="button"
             onClick={onClose}
