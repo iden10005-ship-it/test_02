@@ -33,6 +33,7 @@ interface RegionServiceMatrixPageProps {
   onNavigateService: (serviceId: string) => void;
   onNavigateMatrix: (regionName: string, serviceId: string) => void;
   onSubmitInquiry: (inquiry: Omit<InquiryItem, 'id' | 'createdAt' | 'status'>) => void;
+  isEditMode: boolean;
 }
 
 export const RegionServiceMatrixPage: React.FC<RegionServiceMatrixPageProps> = ({
@@ -49,6 +50,7 @@ export const RegionServiceMatrixPage: React.FC<RegionServiceMatrixPageProps> = (
   onNavigateService,
   onNavigateMatrix,
   onSubmitInquiry,
+  isEditMode,
 }) => {
   const detail: RegionDetailItem = regionDetail || {
     name: regionName,
@@ -98,12 +100,14 @@ export const RegionServiceMatrixPage: React.FC<RegionServiceMatrixPageProps> = (
       </div>
 
       <article className="max-w-5xl mx-auto px-3 sm:px-6 pt-4 sm:pt-8 space-y-6 sm:space-y-10">
-        {/* Internal Direct URL Bar */}
-        <InternalUrlBar
-          path={`#/region/${regionName}/${service.id}`}
-          title={`[${regionName} × ${service.title}] 고유 세부 URL 주소`}
-          subtitle={`이 주소를 공유하면 [${regionName}] 지역의 [${service.title}] 전담 페이지로 바로 연결됩니다.`}
-        />
+        {/* Internal Direct URL Bar (Visible in Admin Mode only) */}
+        {isEditMode && (
+          <InternalUrlBar
+            path={`#/region/${regionName}/${service.id}`}
+            title={`[${regionName} × ${service.title}] 고유 세부 URL 주소`}
+            subtitle={`이 주소를 공유하면 [${regionName}] 지역의 [${service.title}] 전담 페이지로 바로 연결됩니다.`}
+          />
+        )}
 
         {/* 5. Semantic H1 Header */}
         <header className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-8 md:p-10 border border-slate-200/90 shadow-xl relative overflow-hidden">

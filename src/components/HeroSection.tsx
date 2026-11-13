@@ -46,7 +46,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             />
           </div>
 
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-slate-900 tracking-tight leading-[1.2] mb-5">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-slate-900 tracking-tight leading-[1.2] mb-5 whitespace-pre-line">
             <EditableText
               value={hero.title}
               onSave={(val) => onUpdateHero('title', val)}

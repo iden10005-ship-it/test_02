@@ -91,12 +91,14 @@ export const ServiceDetailPage: React.FC<ServiceDetailPageProps> = ({
       </div>
 
       <div className="max-w-5xl mx-auto px-3 sm:px-6 pt-4 sm:pt-8 space-y-6 sm:space-y-10">
-        {/* Internal Direct URL Bar */}
-        <InternalUrlBar
-          path={`#/service/${service.id}`}
-          title={`[${service.title}] 세부페이지 고유 URL 주소 (내부주소)`}
-          subtitle={`이 주소를 상담 안내 또는 홍보 글에 첨부하면 [${service.title}] 전용 상세페이지로 바로 연결됩니다.`}
-        />
+        {/* Internal Direct URL Bar (Visible in Admin Mode only) */}
+        {isEditMode && (
+          <InternalUrlBar
+            path={`#/service/${service.id}`}
+            title={`[${service.title}] 세부페이지 고유 URL 주소 (내부주소)`}
+            subtitle={`이 주소를 상담 안내 또는 홍보 글에 첨부하면 [${service.title}] 전용 상세페이지로 바로 연결됩니다.`}
+          />
+        )}
 
         {/* 2. Service Hero Card */}
         <div className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-8 md:p-10 border border-slate-200/90 shadow-xl relative overflow-hidden">

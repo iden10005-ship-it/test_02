@@ -101,12 +101,14 @@ export const RegionDetailPage: React.FC<RegionDetailPageProps> = ({
       </div>
 
       <div className="max-w-5xl mx-auto px-3 sm:px-6 pt-4 sm:pt-8 space-y-6 sm:space-y-10">
-        {/* Internal Direct URL Bar */}
-        <InternalUrlBar
-          path={`#/region/${regionName}`}
-          title={`[${regionName}] 세부페이지 고유 URL 주소 (내부주소)`}
-          subtitle={`이 주소를 네이버 블로그 링크, 카카오톡 상담, 인스타그램 등에 공유하면 [${regionName}] 전용 상세페이지로 즉시 바로 연결됩니다.`}
-        />
+        {/* Internal Direct URL Bar (Visible in Admin Mode only) */}
+        {isEditMode && (
+          <InternalUrlBar
+            path={`#/region/${regionName}`}
+            title={`[${regionName}] 세부페이지 고유 URL 주소 (내부주소)`}
+            subtitle={`이 주소를 네이버 블로그 링크, 카카오톡 상담, 인스타그램 등에 공유하면 [${regionName}] 전용 상세페이지로 즉시 바로 연결됩니다.`}
+          />
+        )}
 
         {/* 2. Region Hero Card */}
         <div className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-8 md:p-10 border border-slate-200/90 shadow-xl relative overflow-hidden">

@@ -54,7 +54,7 @@ import { AdminLoginModal } from './components/editor/AdminLoginModal';
 import { getPageFromHash, getHashFromPage, getPageKey } from './utils/urlRouter';
 import { getInitialAdminState, hasAdminUrlTrigger, setAdminSession } from './utils/adminAuth';
 
-const STORAGE_KEY = 'clearworks_site_data_v8';
+const STORAGE_KEY = 'clearworks_site_data_v9';
 
 export default function App() {
   // Load data from localStorage or initial template
@@ -1048,21 +1048,22 @@ export default function App() {
 
           {/* D. REGION X SERVICE COMBINATORIAL MATRIX PAGE */}
           {currentPage.type === 'matrix' && activeService && (
-            <RegionServiceMatrixPage
-              regionName={currentPage.regionName}
-              regionDetail={siteData.regions.details ? siteData.regions.details[currentPage.regionName] : undefined}
-              service={activeService}
-              allRegions={siteData.regions.list}
-              allServices={siteData.services.items}
-              company={siteData.company}
-              reviews={siteData.reviews.items}
-              cases={siteData.cases.items}
-              onBack={() => setCurrentPage({ type: 'home' })}
-              onNavigateRegion={(reg) => setCurrentPage({ type: 'region', regionName: reg })}
-              onNavigateService={(srvId) => setCurrentPage({ type: 'service', serviceId: srvId })}
-              onNavigateMatrix={(reg, srvId) => setCurrentPage({ type: 'matrix', regionName: reg, serviceId: srvId })}
-              onSubmitInquiry={handleSubmitInquiry}
-            />
+              <RegionServiceMatrixPage
+                regionName={currentPage.regionName}
+                regionDetail={siteData.regions.details ? siteData.regions.details[currentPage.regionName] : undefined}
+                service={activeService}
+                allRegions={siteData.regions.list}
+                allServices={siteData.services.items}
+                company={siteData.company}
+                reviews={siteData.reviews.items}
+                cases={siteData.cases.items}
+                onBack={() => setCurrentPage({ type: 'home' })}
+                onNavigateRegion={(reg) => setCurrentPage({ type: 'region', regionName: reg })}
+                onNavigateService={(srvId) => setCurrentPage({ type: 'service', serviceId: srvId })}
+                onNavigateMatrix={(reg, srvId) => setCurrentPage({ type: 'matrix', regionName: reg, serviceId: srvId })}
+                onSubmitInquiry={handleSubmitInquiry}
+                isEditMode={effectiveEditMode}
+              />
           )}
 
           {/* E. GALLERY LIST PAGE (WORK BLOG LIST) */}

@@ -34,7 +34,7 @@ export const initialTemplateData: SiteData = {
   },
   hero: {
     badgeText: '프리미엄 윈도우 케어',
-    title: '[지역] 유리창청소 전문 클리어웍스',
+    title: '[지역] 유리창청소 전문\n클리어웍스',
     subtitle: '아파트 외창부터 상가·빌딩 외벽까지, 얼룩 없이 깔끔하게. 견적은 무료입니다.',
     callButtonText: '전화 상담하기',
     kakaoButtonText: '카톡으로 문의하기',
