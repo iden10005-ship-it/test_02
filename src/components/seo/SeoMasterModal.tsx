@@ -25,6 +25,8 @@ import {
   Lightbulb,
   AlertCircle,
   Link2,
+  LayoutList,
+  Pencil,
 } from 'lucide-react';
 import {
   REGION_URL_MAP,
@@ -61,7 +63,7 @@ export const SeoMasterModal: React.FC<SeoMasterModalProps> = ({
   onNavigateRegion,
   onNavigateService,
 }) => {
-  const [activeTab, setActiveTab] = useState<'keywords' | 'blueprint' | 'matrix' | 'naver' | 'sitemap' | 'jsonld'>('keywords');
+  const [activeTab, setActiveTab] = useState<'keywords' | 'overview' | 'blueprint' | 'matrix' | 'naver' | 'sitemap' | 'jsonld'>('keywords');
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
   // SEO Keyword Editor state
@@ -77,6 +79,17 @@ export const SeoMasterModal: React.FC<SeoMasterModalProps> = ({
   const [newSecondaryInput, setNewSecondaryInput] = useState<string>('');
   const [newRegionLongTailInput, setNewRegionLongTailInput] = useState<string>('');
   const [saveFeedback, setSaveFeedback] = useState<string | null>(null);
+
+  // Overview (All pages at a glance) filter & inline editor state
+  const [overviewSearch, setOverviewSearch] = useState<string>('');
+  const [overviewFilter, setOverviewFilter] = useState<'all' | 'custom' | 'core' | 'region' | 'service' | 'matrix'>('all');
+  const [inlineEditKey, setInlineEditKey] = useState<string | null>(null);
+  const [inlineTitle, setInlineTitle] = useState<string>('');
+  const [inlineDescription, setInlineDescription] = useState<string>('');
+  const [inlinePrimaryText, setInlinePrimaryText] = useState<string>('');
+  const [inlineSecondaryText, setInlineSecondaryText] = useState<string>('');
+  const [inlineRegionLongTailText, setInlineRegionLongTailText] = useState<string>('');
+  const [overviewFeedback, setOverviewFeedback] = useState<string | null>(null);
 
   // Sync selectedPageKey with currentPage whenever modal is opened
   useEffect(() => {
@@ -249,7 +262,12 @@ export const SeoMasterModal: React.FC<SeoMasterModalProps> = ({
       const srv = siteData.services.items.find((s) => s.id === sId);
       return `✖️ [${r}] × ${srv ? srv.title.split('·')[0] : sId}`;
     }
-    if (key === 'gallery_list') return '📷 시공갤러리 목록';
+    if (key === 'gallery_list') return '📷 작업갤러리 목록';
+    if (key.startsWith('gallery_detail:')) {
+      const pId = key.replace('gallery_detail:', '');
+      const post = siteData.gallery?.posts.find((p) => p.id === pId);
+      return `📝 갤러리 글: ${post ? post.title : pId}`;
+    }
     return key;
   }
 
@@ -262,8 +280,91 @@ export const SeoMasterModal: React.FC<SeoMasterModalProps> = ({
       return `/#/region/${r}/${sId}`;
     }
     if (key === 'gallery_list') return '/#/gallery';
+    if (key.startsWith('gallery_detail:')) return `/#/gallery/${key.replace('gallery_detail:', '')}`;
     return '/';
   }
+
+  const customPagesMap = siteData.seo?.pages || {};
+
+  // Build ordered list of all manageable pages + any extra custom-configured keys
+  const allManagedPageKeys = (() => {
+    const ordered: string[] = ['home', 'gallery_list'];
+    siteData.services.items.forEach((s) => ordered.push(`service:${s.id}`));
+    siteData.regions.list.forEach((r) => ordered.push(`region:${r}`));
+    siteData.regions.list.slice(0, 4).forEach((r) => {
+      ordered.push(`matrix:${r}:srv-1`);
+      ordered.push(`matrix:${r}:srv-2`);
+    });
+    Object.keys(customPagesMap).forEach((k) => {
+      if (!ordered.includes(k)) ordered.push(k);
+    });
+    return ordered;
+  })();
+
+  const parseCommaList = (text: string): string[] =>
+    Array.from(
+      new Set(
+        text
+          .split(',')
+          .map((item) => item.trim())
+          .filter((item) => item.length > 0)
+      )
+    );
+
+  const handleStartInlineEdit = (pageKey: string) => {
+    const seo = getEffectivePageSeo(pageKey, siteData);
+    setInlineEditKey(pageKey);
+    setInlineTitle(seo.title || '');
+    setInlineDescription(seo.description || '');
+    setInlinePrimaryText((seo.primaryKeywords || []).join(', '));
+    setInlineSecondaryText((seo.secondaryKeywords || []).join(', '));
+    setInlineRegionLongTailText((seo.regionLongTailKeywords || []).join(', '));
+  };
+
+  const handleSaveInlineEdit = (pageKey: string) => {
+    if (!onUpdateSiteData) return;
+    onUpdateSiteData((prev) => ({
+      ...prev,
+      seo: {
+        ...prev.seo,
+        pages: {
+          ...(prev.seo?.pages || {}),
+          [pageKey]: {
+            title: inlineTitle.trim(),
+            description: inlineDescription.trim(),
+            primaryKeywords: parseCommaList(inlinePrimaryText),
+            secondaryKeywords: parseCommaList(inlineSecondaryText),
+            regionLongTailKeywords: parseCommaList(inlineRegionLongTailText),
+            author: prev.company.name,
+          },
+        },
+      },
+    }));
+    setInlineEditKey(null);
+    setOverviewFeedback(`[${getPageLabel(pageKey)}] 맞춤 키워드 및 메타 설명이 저장되었습니다.`);
+    setTimeout(() => setOverviewFeedback(null), 3000);
+  };
+
+  const handleResetCustomPage = (pageKey: string) => {
+    if (!onUpdateSiteData) return;
+    if (!confirm(`[${getPageLabel(pageKey)}]의 맞춤 SEO 설정을 삭제하고 기본 권장값으로 되돌리시겠습니까?`)) return;
+    onUpdateSiteData((prev) => {
+      const nextPages = { ...(prev.seo?.pages || {}) };
+      delete nextPages[pageKey];
+      return {
+        ...prev,
+        seo: {
+          ...prev.seo,
+          pages: nextPages,
+        },
+      };
+    });
+    if (inlineEditKey === pageKey) {
+      setInlineEditKey(null);
+    }
+    setOverviewFeedback(`[${getPageLabel(pageKey)}] 기본 권장값으로 복원되었습니다.`);
+    setTimeout(() => setOverviewFeedback(null), 3000);
+  };
 
   const sitemapXml = generateXmlSitemap(currentDomain, siteData.regions.list, siteData.services.items);
   const robotsTxt = generateRobotsTxt(currentDomain);
@@ -336,6 +437,7 @@ export const SeoMasterModal: React.FC<SeoMasterModalProps> = ({
         <div className="flex overflow-x-auto border-b border-slate-200 bg-slate-50 px-4 py-2 gap-1.5 text-xs font-bold no-scrollbar">
           {[
             { id: 'keywords', label: '🎯 현재 페이지 SEO 키워드 관리' },
+            { id: 'overview', label: `📋 페이지별 SEO 한눈에 보기 (${Object.keys(customPagesMap).length}개 맞춤)` },
             { id: 'blueprint', label: '①~⑩ 통합 설계도 가이드' },
             { id: 'matrix', label: `④ 지역×서비스 매트릭스 (${matrix.length}개)` },
             { id: 'naver', label: '⑩ 네이버 SEO 기술요건 검증' },
@@ -352,6 +454,7 @@ export const SeoMasterModal: React.FC<SeoMasterModalProps> = ({
               }`}
             >
               {tab.id === 'keywords' && <Tag className="w-3.5 h-3.5" />}
+              {tab.id === 'overview' && <LayoutList className="w-3.5 h-3.5" />}
               <span>{tab.label}</span>
             </button>
           ))}
@@ -749,14 +852,353 @@ export const SeoMasterModal: React.FC<SeoMasterModalProps> = ({
                   <span>권장 기본 키워드로 복원</span>
                 </button>
 
-                <button
-                  type="button"
-                  onClick={handleSavePageSeo}
-                  className="w-full sm:w-auto px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-black flex items-center justify-center gap-2 shadow-lg shadow-blue-500/25 transition-all hover:scale-[1.02] active:scale-[0.98]"
-                >
-                  <Save className="w-4 h-4" />
-                  <span>현재 페이지 SEO 키워드 저장 & 실시간 반영</span>
-                </button>
+                <div className="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto">
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('overview')}
+                    className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold flex items-center justify-center gap-1.5 transition-colors"
+                  >
+                    <LayoutList className="w-3.5 h-3.5 text-blue-600" />
+                    <span>전체 페이지 현황 한눈에 보기</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleSavePageSeo}
+                    className="w-full sm:w-auto px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-black flex items-center justify-center gap-2 shadow-lg shadow-blue-500/25 transition-all hover:scale-[1.02] active:scale-[0.98]"
+                  >
+                    <Save className="w-4 h-4" />
+                    <span>현재 페이지 SEO 키워드 저장 & 실시간 반영</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 0-2: ALL PAGES SEO OVERVIEW & INLINE EDITOR */}
+          {activeTab === 'overview' && (
+            <div className="space-y-5">
+              {/* Top Header & Summary Strip */}
+              <div className="bg-slate-900 text-white p-4 sm:p-5 rounded-2xl border border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                  <h4 className="text-sm sm:text-base font-extrabold flex items-center gap-2">
+                    <LayoutList className="w-4 h-4 text-cyan-400" />
+                    <span>페이지별 맞춤 키워드 & 메타 설명 통합 관리</span>
+                  </h4>
+                  <p className="text-xs text-slate-300 mt-1">
+                    각 페이지에 적용된 제목(Title), 메타 설명(Description), 핵심·서브·지역 롱테일 키워드를 한눈에 확인하고 바로 수정하세요.
+                  </p>
+                </div>
+                <div className="flex items-center gap-2.5 shrink-0">
+                  <div className="px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-center">
+                    <span className="text-[10px] text-slate-400 block">전체 관리 페이지</span>
+                    <span className="text-sm font-black text-white">{allManagedPageKeys.length}개</span>
+                  </div>
+                  <div className="px-3 py-2 rounded-xl bg-emerald-500/15 border border-emerald-400/30 text-center">
+                    <span className="text-[10px] text-emerald-300 block">맞춤 설정 완료</span>
+                    <span className="text-sm font-black text-emerald-300">{Object.keys(customPagesMap).length}개</span>
+                  </div>
+                </div>
+              </div>
+
+              {overviewFeedback && (
+                <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span>{overviewFeedback}</span>
+                </div>
+              )}
+
+              {/* Search & Category Filter */}
+              <div className="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 space-y-3">
+                <div className="relative">
+                  <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    value={overviewSearch}
+                    onChange={(e) => setOverviewSearch(e.target.value)}
+                    placeholder="페이지명, URL, 메타 설명, 키워드로 검색..."
+                    className="w-full pl-10 pr-4 py-2 rounded-xl bg-white border border-slate-200 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+
+                <div className="flex flex-wrap gap-1.5">
+                  {[
+                    { id: 'all', label: `전체 (${allManagedPageKeys.length})` },
+                    { id: 'custom', label: `맞춤 설정됨 (${Object.keys(customPagesMap).length})` },
+                    { id: 'core', label: '메인·갤러리' },
+                    { id: 'service', label: `서비스별 (${siteData.services.items.length})` },
+                    { id: 'region', label: `지역별 (${siteData.regions.list.length})` },
+                    { id: 'matrix', label: '지역×서비스 매트릭스' },
+                  ].map((f) => (
+                    <button
+                      key={f.id}
+                      type="button"
+                      onClick={() => setOverviewFilter(f.id as any)}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors ${
+                        overviewFilter === f.id
+                          ? 'bg-blue-600 text-white shadow-2xs'
+                          : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-100'
+                      }`}
+                    >
+                      {f.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Filtered Page Cards */}
+              <div className="space-y-3">
+                {(() => {
+                  const q = overviewSearch.trim().toLowerCase();
+                  const filteredKeys = allManagedPageKeys.filter((key) => {
+                    const isCustom = Boolean(customPagesMap[key]);
+                    if (overviewFilter === 'custom' && !isCustom) return false;
+                    if (overviewFilter === 'core' && key !== 'home' && key !== 'gallery_list' && !key.startsWith('gallery_detail:')) return false;
+                    if (overviewFilter === 'service' && !key.startsWith('service:')) return false;
+                    if (overviewFilter === 'region' && !key.startsWith('region:')) return false;
+                    if (overviewFilter === 'matrix' && !key.startsWith('matrix:')) return false;
+
+                    if (!q) return true;
+                    const seo = getEffectivePageSeo(key, siteData);
+                    const haystack = [
+                      getPageLabel(key),
+                      getPageRelativeUrl(key),
+                      seo.title,
+                      seo.description,
+                      ...(seo.primaryKeywords || []),
+                      ...(seo.secondaryKeywords || []),
+                      ...(seo.regionLongTailKeywords || []),
+                    ]
+                      .join(' ')
+                      .toLowerCase();
+                    return haystack.includes(q);
+                  });
+
+                  if (filteredKeys.length === 0) {
+                    return (
+                      <div className="p-8 text-center bg-slate-50 rounded-2xl border border-slate-200 text-xs text-slate-500">
+                        조건에 일치하는 페이지가 없습니다.
+                      </div>
+                    );
+                  }
+
+                  return filteredKeys.map((pageKey) => {
+                    const isCustom = Boolean(customPagesMap[pageKey]);
+                    const seo = getEffectivePageSeo(pageKey, siteData);
+                    const isEditingThis = inlineEditKey === pageKey;
+                    const totalKeywords =
+                      (seo.primaryKeywords?.length || 0) +
+                      (seo.secondaryKeywords?.length || 0) +
+                      (seo.regionLongTailKeywords?.length || 0);
+
+                    return (
+                      <div
+                        key={pageKey}
+                        className={`rounded-2xl border p-4 sm:p-5 transition-all ${
+                          isEditingThis
+                            ? 'border-blue-500 bg-blue-50/30 shadow-md'
+                            : isCustom
+                            ? 'border-emerald-200 bg-white shadow-xs'
+                            : 'border-slate-200 bg-white'
+                        }`}
+                      >
+                        {/* Card Top Row */}
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-100">
+                          <div className="flex flex-wrap items-center gap-2 min-w-0">
+                            <span className="text-xs sm:text-sm font-extrabold text-slate-900">
+                              {getPageLabel(pageKey)}
+                            </span>
+                            <code className="text-[11px] font-mono px-2 py-0.5 rounded bg-slate-100 text-slate-600">
+                              {getPageRelativeUrl(pageKey)}
+                            </code>
+                            {isCustom ? (
+                              <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-extrabold border border-emerald-200">
+                                맞춤 설정됨
+                              </span>
+                            ) : (
+                              <span className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 text-[10px] font-bold">
+                                기본 권장값
+                              </span>
+                            )}
+                          </div>
+
+                          <div className="flex items-center gap-1.5 shrink-0">
+                            {isCustom && !isEditingThis && (
+                              <button
+                                type="button"
+                                onClick={() => handleResetCustomPage(pageKey)}
+                                className="px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-red-50 text-slate-600 hover:text-red-600 text-[11px] font-bold transition-colors flex items-center gap-1"
+                                title="맞춤 설정 초기화"
+                              >
+                                <RotateCcw className="w-3 h-3" />
+                                <span>초기화</span>
+                              </button>
+                            )}
+                            {!isEditingThis && (
+                              <button
+                                type="button"
+                                onClick={() => handleStartInlineEdit(pageKey)}
+                                className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold transition-colors flex items-center gap-1"
+                              >
+                                <Pencil className="w-3 h-3" />
+                                <span>바로 수정</span>
+                              </button>
+                            )}
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setSelectedPageKey(pageKey);
+                                setActiveTab('keywords');
+                              }}
+                              className="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-white text-[11px] font-bold transition-colors flex items-center gap-1"
+                            >
+                              <Tag className="w-3 h-3" />
+                              <span>상세 편집</span>
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Read-only Summary OR Inline Edit Form */}
+                        {!isEditingThis ? (
+                          <div className="pt-3 space-y-2.5">
+                            <div>
+                              <div className="flex items-center gap-2 text-[11px] font-bold text-slate-400 mb-0.5">
+                                <span>제목 (Title)</span>
+                                <span className="text-slate-400">· {(seo.title || '').length}자</span>
+                              </div>
+                              <p className="text-xs sm:text-sm font-bold text-slate-900">{seo.title || '-'}</p>
+                            </div>
+
+                            <div>
+                              <div className="flex items-center gap-2 text-[11px] font-bold text-slate-400 mb-0.5">
+                                <span>메타 설명 (Meta Description)</span>
+                                <span className="text-slate-400">· {(seo.description || '').length}자</span>
+                              </div>
+                              <p className="text-xs text-slate-600 leading-relaxed">{seo.description || '-'}</p>
+                            </div>
+
+                            <div>
+                              <div className="text-[11px] font-bold text-slate-400 mb-1.5">
+                                설정된 키워드 ({totalKeywords}개)
+                              </div>
+                              <div className="flex flex-wrap gap-1.5">
+                                {(seo.primaryKeywords || []).map((kw, i) => (
+                                  <span
+                                    key={`p-${i}`}
+                                    className="px-2 py-0.5 rounded-lg bg-blue-50 text-blue-700 border border-blue-200/80 text-[11px] font-bold"
+                                  >
+                                    #{kw}
+                                  </span>
+                                ))}
+                                {(seo.secondaryKeywords || []).map((kw, i) => (
+                                  <span
+                                    key={`s-${i}`}
+                                    className="px-2 py-0.5 rounded-lg bg-slate-100 text-slate-700 border border-slate-200 text-[11px] font-semibold"
+                                  >
+                                    {kw}
+                                  </span>
+                                ))}
+                                {(seo.regionLongTailKeywords || []).map((kw, i) => (
+                                  <span
+                                    key={`r-${i}`}
+                                    className="px-2 py-0.5 rounded-lg bg-indigo-50 text-indigo-700 border border-indigo-200/80 text-[11px] font-semibold"
+                                  >
+                                    📍 {kw}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="pt-3 space-y-3">
+                            <div>
+                              <div className="flex items-center justify-between mb-1">
+                                <label className="text-xs font-bold text-slate-700">페이지 제목 (Title Tag)</label>
+                                <span className="text-[11px] text-slate-500">{inlineTitle.length}자 (권장 30~60자)</span>
+                              </div>
+                              <input
+                                type="text"
+                                value={inlineTitle}
+                                onChange={(e) => setInlineTitle(e.target.value)}
+                                className="w-full px-3 py-2 rounded-xl bg-white border border-slate-300 text-xs sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              />
+                            </div>
+
+                            <div>
+                              <div className="flex items-center justify-between mb-1">
+                                <label className="text-xs font-bold text-slate-700">메타 설명 (Meta Description)</label>
+                                <span className="text-[11px] text-slate-500">{inlineDescription.length}자 (권장 80~160자)</span>
+                              </div>
+                              <textarea
+                                rows={2}
+                                value={inlineDescription}
+                                onChange={(e) => setInlineDescription(e.target.value)}
+                                className="w-full px-3 py-2 rounded-xl bg-white border border-slate-300 text-xs sm:text-sm leading-relaxed focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                              />
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5">
+                              <div>
+                                <label className="block text-[11px] font-bold text-blue-700 mb-1">
+                                  핵심 메인 키워드 (쉼표 구분)
+                                </label>
+                                <textarea
+                                  rows={2}
+                                  value={inlinePrimaryText}
+                                  onChange={(e) => setInlinePrimaryText(e.target.value)}
+                                  placeholder="키워드1, 키워드2"
+                                  className="w-full px-2.5 py-2 rounded-xl bg-white border border-slate-300 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                                  서브/연관 키워드 (쉼표 구분)
+                                </label>
+                                <textarea
+                                  rows={2}
+                                  value={inlineSecondaryText}
+                                  onChange={(e) => setInlineSecondaryText(e.target.value)}
+                                  placeholder="보조키워드1, 보조키워드2"
+                                  className="w-full px-2.5 py-2 rounded-xl bg-white border border-slate-300 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-[11px] font-bold text-indigo-700 mb-1">
+                                  지역 롱테일 키워드 (쉼표 구분)
+                                </label>
+                                <textarea
+                                  rows={2}
+                                  value={inlineRegionLongTailText}
+                                  onChange={(e) => setInlineRegionLongTailText(e.target.value)}
+                                  placeholder="강남구 외창청소, 서초구 물때제거"
+                                  className="w-full px-2.5 py-2 rounded-xl bg-white border border-slate-300 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                                />
+                              </div>
+                            </div>
+
+                            <div className="flex items-center justify-end gap-2 pt-1">
+                              <button
+                                type="button"
+                                onClick={() => setInlineEditKey(null)}
+                                className="px-3.5 py-2 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold transition-colors"
+                              >
+                                취소
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleSaveInlineEdit(pageKey)}
+                                className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-extrabold flex items-center gap-1.5 shadow-sm transition-colors"
+                              >
+                                <Save className="w-3.5 h-3.5" />
+                                <span>저장 및 즉시 반영</span>
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  });
+                })()}
               </div>
             </div>
           )}
