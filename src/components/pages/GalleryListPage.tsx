@@ -127,13 +127,15 @@ export const GalleryListPage: React.FC<GalleryListPageProps> = ({
             </p>
 
             <div className="flex flex-wrap items-center gap-4 pt-2">
-              <button
-                onClick={handleOpenCreateModal}
-                className="px-5 py-3 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs sm:text-sm shadow-lg shadow-blue-500/30 flex items-center gap-2 transition-all hover:scale-105 cursor-pointer"
-              >
-                <Plus className="w-4 h-4" />
-                <span>새 작업일지 작성하기</span>
-              </button>
+              {isEditMode && (
+                <button
+                  onClick={handleOpenCreateModal}
+                  className="px-5 py-3 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs sm:text-sm shadow-lg shadow-blue-500/30 flex items-center gap-2 transition-all hover:scale-105 cursor-pointer"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>새 작업일지 작성하기</span>
+                </button>
+              )}
               <div className="flex items-center gap-2 text-xs text-slate-400">
                 <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
                 <span>100% 직접 시공한 현장 사진만 게재합니다</span>
@@ -273,13 +275,15 @@ export const GalleryListPage: React.FC<GalleryListPageProps> = ({
             <p className="text-xs text-slate-500 mb-6">
               다른 카테고리나 검색어로 검색하시거나 새로운 작업일지를 작성해보세요.
             </p>
-            <button
-              onClick={handleOpenCreateModal}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-md transition-all"
-            >
-              <Plus className="w-4 h-4" />
-              <span>새 작업일지 작성하기</span>
-            </button>
+            {isEditMode && (
+              <button
+                onClick={handleOpenCreateModal}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-md transition-all"
+              >
+                <Plus className="w-4 h-4" />
+                <span>새 작업일지 작성하기</span>
+              </button>
+            )}
           </div>
         )}
       </div>

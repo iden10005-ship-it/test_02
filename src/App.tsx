@@ -761,6 +761,9 @@ export default function App() {
             setCurrentPage({ type: 'gallery_list' });
           }}
           onOpenSeoMaster={isAdminMode ? () => setIsSeoMasterOpen(true) : undefined}
+          isAdminMode={isAdminMode}
+          onOpenAdminLogin={() => setIsAdminLoginOpen(true)}
+          onLogoutAdmin={handleExitAdminMode}
         />
 
         {/* Dynamic Page Router */}

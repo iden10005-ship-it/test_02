@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Phone, MessageCircle, MessageSquare, FileText, Menu, X, Sparkles, ChevronDown, MapPin, ArrowRight } from 'lucide-react';
+import { Phone, MessageCircle, MessageSquare, FileText, Menu, X, Sparkles, ChevronDown, MapPin, ArrowRight, Lock } from 'lucide-react';
 import { CompanyInfo, ServiceItem, PageView } from '../types/siteData';
 import { EditableText } from './common/EditableText';
 
@@ -15,6 +15,9 @@ interface NavbarProps {
   onNavigateRegion?: (regionName: string) => void;
   onNavigateGalleryList?: () => void;
   onOpenSeoMaster?: () => void;
+  isAdminMode?: boolean;
+  onOpenAdminLogin?: () => void;
+  onLogoutAdmin?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -29,6 +32,9 @@ export const Navbar: React.FC<NavbarProps> = ({
   onNavigateRegion,
   onNavigateGalleryList,
   onOpenSeoMaster,
+  isAdminMode = false,
+  onOpenAdminLogin,
+  onLogoutAdmin,
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [serviceDropdownOpen, setServiceDropdownOpen] = useState(false);
@@ -94,6 +100,28 @@ export const Navbar: React.FC<NavbarProps> = ({
                 label="대표 전화번호 수정"
               />
             </a>
+            {!isAdminMode && onOpenAdminLogin && (
+              <button
+                type="button"
+                onClick={onOpenAdminLogin}
+                className="inline-flex items-center gap-1 text-slate-400 hover:text-white transition-colors pl-2 border-l border-slate-700 font-semibold text-[11px]"
+                title="관리자 모드 로그인"
+              >
+                <Lock className="w-3 h-3 text-blue-400" />
+                <span>관리자</span>
+              </button>
+            )}
+            {isAdminMode && onLogoutAdmin && (
+              <button
+                type="button"
+                onClick={onLogoutAdmin}
+                className="inline-flex items-center gap-1 text-emerald-400 hover:text-emerald-200 transition-colors pl-2 border-l border-slate-700 font-semibold text-[11px]"
+                title="관리자 모드 종료"
+              >
+                <Lock className="w-3 h-3" />
+                <span>관리자 모드 종료</span>
+              </button>
+            )}
           </div>
         </div>
       </div>
